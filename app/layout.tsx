@@ -20,12 +20,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning style={{ backgroundColor: '#000000' }}>
+      <head>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            html, body, #__next { 
+              background-color: #000000 !important; 
+              margin: 0; 
+              padding: 0; 
+            }
+          `
+        }} />
+      </head>
       <body
         className={`antialiased ${inter.variable}`}
+        style={{ backgroundColor: '#000000' }}
       >
-
-        <Navbar />
         {children}
       </body>
     </html>

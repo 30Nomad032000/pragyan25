@@ -146,9 +146,16 @@
   }
 }
 
+html {
+  background-color: #000000;
+}
+
 body {
   font-family: "Inter", monospace;
   overflow-x: hidden;
+  background-color: #000000;
+  margin: 0;
+  padding: 0;
 }
 
 /* Hero Futuristic Component Styles */
@@ -541,7 +548,12 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body,
+  #__next {
+    background-color: #000000 !important;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
 }

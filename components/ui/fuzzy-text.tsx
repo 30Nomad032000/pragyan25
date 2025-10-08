@@ -25,13 +25,16 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
   const canvasRef = useRef<HTMLCanvasElement & { cleanupFuzzyText?: () => void }>(null);
 
   useEffect(() => {
+    // Ensure we're in the browser environment
+    if (typeof window === 'undefined') return;
+
     let animationFrameId: number;
     let isCancelled = false;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const init = async () => {
-      if (document.fonts?.ready) {
+      if (typeof document !== 'undefined' && document.fonts?.ready) {
         await document.fonts.ready;
       }
       if (isCancelled) return;
@@ -47,15 +50,22 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
       if (typeof fontSize === 'number') {
         numericFontSize = fontSize;
       } else {
-        const temp = document.createElement('span');
-        temp.style.fontSize = fontSize;
-        document.body.appendChild(temp);
-        const computedSize = window.getComputedStyle(temp).fontSize;
-        numericFontSize = parseFloat(computedSize);
-        document.body.removeChild(temp);
+        if (typeof document !== 'undefined') {
+          const temp = document.createElement('span');
+          temp.style.fontSize = fontSize;
+          document.body.appendChild(temp);
+          const computedSize = window.getComputedStyle(temp).fontSize;
+          numericFontSize = parseFloat(computedSize);
+          document.body.removeChild(temp);
+        } else {
+          // Fallback for SSR
+          numericFontSize = 48;
+        }
       }
 
       const text = React.Children.toArray(children).join('');
+
+      if (typeof document === 'undefined') return;
 
       const offscreen = document.createElement('canvas');
       const offCtx = offscreen.getContext('2d');
