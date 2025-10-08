@@ -104,17 +104,16 @@ export default function Home() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
+    <div className={`relative min-h-screen overflow-hidden bg-black flex items-center justify-center transition-all duration-1000 ease-out ${showContent ? 'opacity-100' : 'opacity-0'
+      }`}>
       <Navbar />
-      <div className={`absolute inset-0 z-0 transition-all duration-1000 ease-out ${showContent ? 'opacity-100' : 'opacity-0'
-        }`}>
+      <div className="absolute inset-0 z-0">
         <FaultyTerminalBackground
           className="w-full h-full"
         />
       </div>
 
-      <div className={`relative w-full flex items-center justify-center px-4 sm:px-12 transition-all duration-1200 ease-out delay-200 ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
-        }`}>
+      <div className="relative w-full flex items-center justify-center px-4 sm:px-12">
         <FuzzyText
           fontSize="clamp(3rem, 12vw, 8rem)"
           fontWeight={900}
