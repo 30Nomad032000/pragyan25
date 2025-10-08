@@ -1,12 +1,14 @@
 "use client"
 
-import React from "react"
-import { useState } from "react"
+import { notFound } from "next/navigation"
+import React, { useEffect, useState } from "react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import FaultyTerminalBackground from "../../../components/ui/custom-background"
 import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
-import FaultyTerminalBackground from "../../../components/ui/custom-background"
+
+const eventNames = ['code-loom', 'beat-verse', 'click-clash', 'virtux', 'bug-ex', 'play-grid', 'idea-synth', 'trail-hack', 'clip-forge', 'trialis', 'goalazo']
 
 export default function Page({ params }: { params: { formType: string } }) {
     const [formData, setFormData] = useState({
@@ -28,6 +30,20 @@ export default function Page({ params }: { params: { formType: string } }) {
             [name]: value,
         }))
     }
+
+    const imageUrl = `/${eventNames.indexOf(params.formType) + 1}.png`
+
+    useEffect(() => {
+        if (eventNames.includes(params.formType)) {
+            setFormData((prev) => ({
+                ...prev,
+                event: params.formType,
+            }))
+
+        } else {
+            notFound()
+        }
+    }, [params.formType])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -53,7 +69,7 @@ export default function Page({ params }: { params: { formType: string } }) {
                             <Card className="w-full max-w-md bg-black/30 backdrop-blur-xl border border-cyan-500/40 shadow-2xl shadow-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-cyan-500/40 hover:border-cyan-400/60 hover:scale-[1.02] group">
                                 <div className="relative">
                                     <img
-                                        src="https://placehold.co/600x800/0a0a0a/68f6f6?text=EVENT+POSTER"
+                                        src={imageUrl}
                                         alt="Event Poster"
                                         className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                                     />

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/navbar";
 import React from "react";
+import { Navbar } from "@/components/navbar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,6 +36,8 @@ export default function RootLayout({
         className={`antialiased ${inter.variable}`}
         style={{ backgroundColor: '#000000' }}
       >
+
+        <Navbar />
         {children}
       </body>
     </html>
