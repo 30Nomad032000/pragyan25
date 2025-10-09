@@ -1,18 +1,11 @@
 "use client"
 
 import LandingPostersSection from "@/components/ui/landing-posters-section";
-import { Quantum } from 'ldrs/react';
-import 'ldrs/react/Quantum.css';
-import { useEffect, useState } from "react";
 import FaultyTerminalBackground from "../components/ui/faulty-terminal-background";
 import PowerGlitchImage from "../components/ui/powerglitch-image";
 import PowerGlitchButton from "../components/ui/powerglitch-button";
 
 export default function Home() {
-
-
-
-
 
 
   return (

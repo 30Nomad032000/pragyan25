@@ -32,7 +32,7 @@ export default function FaultyTerminalBackground({
                 glitchAmount={1}
                 flickerAmount={1}
                 noiseAmp={1}
-                chromaticAberration={0}
+                chromaticAberration={0.8}
                 dither={0}
                 curvature={0.1}
                 tint="#b341ed"
