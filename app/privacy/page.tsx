@@ -2,7 +2,7 @@
 
 import { AnimatedPostersBackground } from "@/components/ui/animated-posters-background"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Eye, Lock, Database, Users, Mail, Phone, Calendar, AlertCircle, CheckCircle } from "lucide-react"
+import { Shield, Eye, Lock, Database, Users, Mail, Phone, Calendar, AlertCircle, CheckCircle, DollarSign } from "lucide-react"
 
 const dataTypes = [
     {
@@ -91,6 +91,29 @@ const userRights = [
     "Right to data portability",
     "Right to object to processing",
     "Right to withdraw consent"
+]
+
+const refundPolicies = [
+    {
+        icon: DollarSign,
+        title: "Refund Eligibility",
+        description: "Refunds are available for event registrations cancelled at least 7 days before the event start date"
+    },
+    {
+        icon: Calendar,
+        title: "Processing Time",
+        description: "Refund requests are processed within 5-7 business days after approval"
+    },
+    {
+        icon: AlertCircle,
+        title: "Non-Refundable Items",
+        description: "Merchandise, accommodation bookings, and late cancellations are generally non-refundable"
+    },
+    {
+        icon: CheckCircle,
+        title: "Refund Method",
+        description: "Refunds are processed through the original payment method used for registration"
+    }
 ]
 
 export default function PrivacyPolicyPage() {
@@ -267,6 +290,53 @@ export default function PrivacyPolicyPage() {
                         </CardContent>
                     </Card>
 
+                    {/* Refunds Policy */}
+                    <div className="mb-16">
+                        <h2 className="text-3xl font-bold text-center text-yellow-300 mb-8">
+                            Refunds Policy
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {refundPolicies.map((policy, index) => (
+                                <Card key={index} className="bg-black/40 backdrop-blur-xl border border-yellow-500/30 rounded-xl overflow-hidden hover:border-yellow-400/60 transition-all duration-300">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-start">
+                                            <policy.icon className="w-6 h-6 text-yellow-400 mr-4 mt-1 flex-shrink-0" />
+                                            <div>
+                                                <h3 className="text-lg font-bold text-yellow-300 mb-2">{policy.title}</h3>
+                                                <p className="text-cyan-200/80">{policy.description}</p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+
+                        {/* Additional Refund Information */}
+                        <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-xl border border-yellow-500/30 rounded-xl overflow-hidden mt-8">
+                            <CardContent className="p-6">
+                                <h3 className="text-xl font-bold text-yellow-300 mb-4">Important Refund Information</h3>
+                                <div className="space-y-3 text-cyan-200/80">
+                                    <div className="flex items-start">
+                                        <AlertCircle className="w-5 h-5 text-yellow-400 mr-3 mt-0.5 flex-shrink-0" />
+                                        <span>All refund requests must be submitted through our official channels with proper documentation</span>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <AlertCircle className="w-5 h-5 text-yellow-400 mr-3 mt-0.5 flex-shrink-0" />
+                                        <span>Partial refunds may apply for events cancelled due to circumstances beyond our control</span>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <AlertCircle className="w-5 h-5 text-yellow-400 mr-3 mt-0.5 flex-shrink-0" />
+                                        <span>Refund policies may vary for different event types and special circumstances</span>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <AlertCircle className="w-5 h-5 text-yellow-400 mr-3 mt-0.5 flex-shrink-0" />
+                                        <span>Contact our support team for specific refund inquiries and assistance</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
                     {/* Contact Information */}
                     <div className="text-center">
                         <Card className="bg-black/40 backdrop-blur-xl border border-cyan-500/30 rounded-xl overflow-hidden max-w-2xl mx-auto">
@@ -279,7 +349,7 @@ export default function PrivacyPolicyPage() {
                                 <div className="space-y-2 text-cyan-200/80">
                                     <div className="flex items-center justify-center">
                                         <Mail className="w-5 h-5 text-cyan-400 mr-2" />
-                                        <span>privacy@pragyan2025.edu</span>
+                                        <span>privacy@pragyan.fun</span>
                                     </div>
                                     <div className="flex items-center justify-center">
                                         <Phone className="w-5 h-5 text-cyan-400 mr-2" />

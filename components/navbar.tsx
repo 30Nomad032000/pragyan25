@@ -18,6 +18,7 @@ export function Navbar() {
         { href: "/about", label: "About" },
         { href: "/rules", label: "Rules" },
         { href: "/faq", label: "FAQ" },
+        { href: "/contact", label: "Contact" },
         { href: "/privacy", label: "Privacy" },
     ]
 
