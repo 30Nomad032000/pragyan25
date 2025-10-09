@@ -9,7 +9,7 @@ import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { Lock } from "lucide-react"
 
-const eventNames = ['code-loom', 'beat-verse', 'click-clash', 'virtux', 'bug-ex', 'play-grid', 'idea-synth', 'trail-hack', 'clip-forge', 'trialis', 'goalazo']
+const eventNames = ['code-loom', 'beat-verse', 'click-clash', 'virtux', 'bug-x', 'play-grid', 'idea-synth', 'trail-hack', 'clip-forge', 'trialis', 'goalazo']
 
 export default function Page({ params }: { params: { formType: string } }) {
     const [formData, setFormData] = useState({

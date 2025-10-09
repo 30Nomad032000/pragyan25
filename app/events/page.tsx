@@ -3,7 +3,6 @@
 import Balatro from "@/components/Balatro"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import PowerGlitchCard from "@/components/ui/powerglitch-card"
 import { Calendar, Clock, MapPin, Star, Timer } from "lucide-react"
 import Link from "next/link"
 import { useRef, useState } from "react"
@@ -23,8 +22,8 @@ const events = [
         prize: '₹4,000'
     },
     {
-        id: 'bug-ex',
-        name: 'Bug Ex',
+        id: 'bug-x',
+        name: 'Bug X',
         image: '/5.png',
         description: 'Sharpen your analytical skills and become a debugging detective. Race against the clock to find, fix, and optimize broken code, restoring order to the digital world.',
         date: 'October 16, 2025',
