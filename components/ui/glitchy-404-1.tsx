@@ -117,10 +117,10 @@ const FuzzyWrapper = ({
             // Wait for fonts and animations to be ready
             await new Promise((resolve) => setTimeout(resolve, 100));
 
-            // Get SVG dimensions
+            // Get SVG dimensions - use responsive sizing
             const svgRect = svgElement.getBoundingClientRect();
-            const svgWidth = svgRect.width || 800;
-            const svgHeight = svgRect.height || 232;
+            const svgWidth = svgRect.width || Math.min(window.innerWidth * 0.9, 800);
+            const svgHeight = svgRect.height || (svgWidth * 29) / 100; // Maintain aspect ratio
 
             // Create offscreen canvas
             const offscreen = document.createElement("canvas");
@@ -192,9 +192,20 @@ const FuzzyWrapper = ({
 
         init();
 
+        // Add resize handler for responsive behavior
+        const handleResize = () => {
+            if (canvas && canvas.cleanupFuzzy) {
+                canvas.cleanupFuzzy();
+            }
+            init();
+        };
+
+        window.addEventListener('resize', handleResize);
+
         return () => {
             isCancelled = true;
             window.cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', handleResize);
             if (canvas && canvas.cleanupFuzzy) {
                 canvas.cleanupFuzzy();
             }
@@ -230,15 +241,15 @@ interface Glitchy404Props {
 
 export function Glitchy404({ width = 860, height = 232, color = "#fff" }: Glitchy404Props) {
     return (
-        <FuzzyWrapper baseIntensity={0.4} className="cursor-pointer">
-            <div className="relative">
+        <FuzzyWrapper baseIntensity={0.4} className="cursor-pointer w-full max-w-4xl">
+            <div className="relative w-full">
                 <svg
-                    width={width}
-                    height={height}
+                    width="100%"
+                    height="auto"
                     viewBox="0 0 100 29"
                     fill="white"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="cursor-pointer fill-current text-white"
+                    className="cursor-pointer fill-current text-white w-full h-auto max-w-full"
 
                 >
                     {/* First "4" - Multiple chunks for variety */}

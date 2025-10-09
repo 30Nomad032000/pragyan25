@@ -4,6 +4,9 @@ import React from 'react'
 import Image from 'next/image'
 import LetterGlitch from '../LetterGlitch'
 import { useRouter } from 'next/navigation'
+import PixelBlast from '../PixelBlast'
+import Link from 'next/link'
+import PowerGlitchButton from './powerglitch-button'
 
 interface LandingPostersSectionProps {
     className?: string
@@ -23,7 +26,7 @@ export function LandingPostersSection({
     subtitle = "Discover all our exciting events"
 }: LandingPostersSectionProps) {
     const posters = Array.from({ length: 10 }, (_, i) => i + 1)
-    const eventNames = ['Code-Loom', 'Beat-Verse', 'Click-Clash', 'Virtux', 'Bug-Ex', 'Play-Grid', 'Idea-Synth', 'Trail-Hack', 'Clip-Forge', 'Trialis']
+    const eventNames = ['Code-Loom', 'Beat-Verse', 'Click-Clash', 'Virtux', 'Bug-Ex', 'Golazo', 'Idea-Synth', 'Trail-Hack', 'Clip-Forge', 'Trialis']
     const router = useRouter()
     return (
         <section className={`relative py-24 px-6 bg-black overflow-hidden ${className}`}>
@@ -71,7 +74,7 @@ export function LandingPostersSection({
                                 filter: 'drop-shadow(0 0 20px rgba(6,182,212,0.2))'
                             }}
                             onClick={() => {
-                                router.push(`/register/${eventNames[posterNumber - 1].toLowerCase()}`)
+                                router.push(`/events?id=${eventNames[posterNumber - 1].toLowerCase()}`)
                             }}
                         >
                             {/* Glow border effect */}
@@ -110,19 +113,48 @@ export function LandingPostersSection({
 
                 {/* Call to Action */}
                 <div className="text-center mt-20">
-                    <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-full hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25">
-                        View All Events
-                    </button>
+                    <Link href={'/events'}>
+                        <PowerGlitchButton glitchOptions={{
+                            playMode: 'hover',
+                            timing: {
+                                duration: 600,
+                                iterations: 1
+                            }
+                        }} className=" text-cyan-400 font-mono text-lg font-bold tracking-wider relative group overflow-hidden
+                px-8 py-4 rounded-lg
+                bg-gradient-to-r from-purple-600/20 to-cyan-600/20
+                border border-cyan-400/30
+                backdrop-blur-sm
+                transition-all duration-300 ease-out
+                hover:scale-105 hover:shadow-2xl
+                hover:shadow-cyan-400/50">
+                            View All Events
+                        </PowerGlitchButton>
+                    </Link>
                 </div>
             </div>
 
             {/* Floating particles */}
             <div className="absolute inset-0 pointer-events-none">
-                <LetterGlitch
-                    glitchSpeed={50}
-                    centerVignette={true}
-                    outerVignette={false}
-                    smooth={true} glitchColors={['#2b4539', '#61dca3', '#61b3dc']} characters={'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&*()-_+=/[]{};:<>.,0123456789'} />
+                <PixelBlast
+                    variant="circle"
+                    pixelSize={6}
+                    color="#B19EEF"
+                    patternScale={3}
+                    patternDensity={1.2}
+                    pixelSizeJitter={0.5}
+                    enableRipples
+                    rippleSpeed={0.4}
+                    rippleThickness={0.12}
+                    rippleIntensityScale={1.5}
+                    liquid
+                    liquidStrength={0.12}
+                    liquidRadius={1.2}
+                    liquidWobbleSpeed={5}
+                    speed={0.6}
+                    edgeFade={0.25}
+                    transparent
+                />
             </div>
 
             {/* Gradient overlays for depth */}

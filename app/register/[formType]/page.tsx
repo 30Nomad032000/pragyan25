@@ -94,7 +94,7 @@ export default function Page({ params }: { params: { formType: string } }) {
     }
 
     return (
-        <div className="min-h-screen relative">
+        <div className="min-h-screen relative pt-28 md:pt-2">
             <FaultyTerminalBackground />
 
             <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>

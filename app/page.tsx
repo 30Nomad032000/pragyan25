@@ -5,9 +5,8 @@ import { Quantum } from 'ldrs/react';
 import 'ldrs/react/Quantum.css';
 import { useEffect, useState } from "react";
 import FaultyTerminalBackground from "../components/ui/faulty-terminal-background";
-import FuzzyText from "../components/ui/fuzzy-text";
-import Image from "next/image";
 import PowerGlitchImage from "../components/ui/powerglitch-image";
+import PowerGlitchButton from "../components/ui/powerglitch-button";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -52,9 +51,9 @@ export default function Home() {
         <div className="flex flex-col items-center space-y-6 relative z-10">
           <div className="relative">
             <Quantum
-              size="45"
+              size="120"
               speed="1.75"
-              color="#FFFFFF"
+              color="#59168b"
             />
             {/* Neon glow effect */}
 
@@ -75,7 +74,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative w-full flex items-center justify-center px-4 sm:px-12" suppressHydrationWarning>
+        <div className="relative w-full flex flex-col items-center justify-center px-4 sm:px-12 space-y-8" suppressHydrationWarning>
 
           <PowerGlitchImage
             src="/title.svg"
@@ -108,6 +107,61 @@ export default function Home() {
             }}
           />
 
+          {/* Cyberpunk See More Button */}
+          <div className="relative z-10">
+            <PowerGlitchButton
+              onClick={() => {
+                const element = document.getElementById('events-section')
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }}
+              className="
+                relative group overflow-hidden
+                px-8 py-4 rounded-lg
+                bg-gradient-to-r from-purple-600/20 to-cyan-600/20
+                border border-cyan-400/30
+                backdrop-blur-sm
+                transition-all duration-300 ease-out
+                hover:scale-105 hover:shadow-2xl
+                hover:shadow-cyan-400/50
+              "
+              glitchOptions={{
+                playMode: 'hover',
+                timing: {
+                  duration: 600,
+                  iterations: 1
+                },
+                glitchTimeSpan: {
+                  start: 0.1,
+                  end: 0.3
+                },
+                shake: {
+                  velocity: 30,
+                  amplitudeX: 0.4,
+                  amplitudeY: 0.3
+                },
+                slice: {
+                  count: 10,
+                  velocity: 30,
+                  minHeight: 0.02,
+                  maxHeight: 0.25,
+                  hueRotate: true
+                }
+              }}
+            >
+              {/* Button content */}
+              <div className="relative flex items-center space-x-3 text-cyan-400 font-mono text-lg font-bold tracking-wider">
+                <span className="relative">
+                  <span className="opacity-100 group-hover:opacity-0 transition-opacity duration-200">SEE MORE</span>
+                  <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-purple-400">
+                    EXPLORE
+                  </span>
+                </span>
+              </div>
+            </PowerGlitchButton>
+          </div>
+
         </div>
 
         {/* Navigation Links */}
@@ -116,13 +170,15 @@ export default function Home() {
       </div>
 
       {/* Event Posters Section */}
-      <LandingPostersSection
-        title="Our Events"
-        subtitle="Explore the exciting lineup of events at Pragyan 2025"
-        opacity={0.7}
-        enableAnimations={true}
-        enableHoverEffects={true}
-      />
+      <div id="events-section">
+        <LandingPostersSection
+          title="Our Events"
+          subtitle="Explore the exciting lineup of events at Pragyan 2025"
+          opacity={0.7}
+          enableAnimations={true}
+          enableHoverEffects={true}
+        />
+      </div>
     </>
   );
 }
