@@ -6,6 +6,8 @@ import 'ldrs/react/Quantum.css';
 import { useEffect, useState } from "react";
 import FaultyTerminalBackground from "../components/ui/faulty-terminal-background";
 import FuzzyText from "../components/ui/fuzzy-text";
+import Image from "next/image";
+import PowerGlitchImage from "../components/ui/powerglitch-image";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -74,16 +76,38 @@ export default function Home() {
         </div>
 
         <div className="relative w-full flex items-center justify-center px-4 sm:px-12" suppressHydrationWarning>
-          <FuzzyText
-            fontSize="clamp(2rem, 8vw, 6rem)"
-            fontWeight={900}
-            color="#ffffff"
-            enableHover={true}
-            baseIntensity={0.18}
-            hoverIntensity={0.5}
-          >
-            Coming Soon
-          </FuzzyText>
+
+          <PowerGlitchImage
+            src="/title.svg"
+            alt="Title"
+            width={600}
+            height={400}
+            className="w-full h-full object-contain"
+            glitchOptions={{
+              playMode: 'always',
+              timing: {
+                duration: 1500,
+                iterations: Infinity
+              },
+              glitchTimeSpan: {
+                start: 0.3,
+                end: 0.6
+              },
+              shake: {
+                velocity: 20,
+                amplitudeX: 0.3,
+                amplitudeY: 0.2
+              },
+              slice: {
+                count: 8,
+                velocity: 20,
+                minHeight: 0.02,
+                maxHeight: 0.2,
+                hueRotate: true
+              }
+            }}
+          />
+
         </div>
 
         {/* Navigation Links */}
