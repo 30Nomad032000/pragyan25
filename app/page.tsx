@@ -76,36 +76,38 @@ export default function Home() {
 
         <div className="relative w-full flex flex-col items-center justify-center px-4 sm:px-12 space-y-8" suppressHydrationWarning>
 
-          <PowerGlitchImage
-            src="/title.svg"
-            alt="Title"
-            width={600}
-            height={400}
-            className="w-full h-full object-contain"
-            glitchOptions={{
-              playMode: 'always',
-              timing: {
-                duration: 1500,
-                iterations: Infinity
-              },
-              glitchTimeSpan: {
-                start: 0.3,
-                end: 0.6
-              },
-              shake: {
-                velocity: 20,
-                amplitudeX: 0.3,
-                amplitudeY: 0.2
-              },
-              slice: {
-                count: 8,
-                velocity: 20,
-                minHeight: 0.02,
-                maxHeight: 0.2,
-                hueRotate: true
-              }
-            }}
-          />
+          <div className="flex justify-center items-center w-full">
+            <PowerGlitchImage
+              src="/title.svg"
+              alt="Title"
+              width={300}
+              height={200}
+              className="w-auto h-auto max-w-[51%] max-h-[51%] object-contain"
+              glitchOptions={{
+                playMode: 'always',
+                timing: {
+                  duration: 1500,
+                  iterations: Infinity
+                },
+                glitchTimeSpan: {
+                  start: 0.3,
+                  end: 0.6
+                },
+                shake: {
+                  velocity: 20,
+                  amplitudeX: 0.3,
+                  amplitudeY: 0.2
+                },
+                slice: {
+                  count: 8,
+                  velocity: 20,
+                  minHeight: 0.02,
+                  maxHeight: 0.2,
+                  hueRotate: true
+                }
+              }}
+            />
+          </div>
 
           {/* Cyberpunk See More Button */}
           <div className="relative z-10">

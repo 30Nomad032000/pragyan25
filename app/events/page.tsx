@@ -1,11 +1,12 @@
 "use client"
 
-import { AnimatedPostersBackground } from "@/components/ui/animated-posters-background"
+import Balatro from "@/components/Balatro"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, Calendar, Clock, MapPin, Star, Timer } from "lucide-react"
+import PowerGlitchCard from "@/components/ui/powerglitch-card"
+import { Calendar, Clock, MapPin, Star, Timer } from "lucide-react"
 import Link from "next/link"
-import { useState, useRef } from "react"
+import { useRef, useState } from "react"
 
 const events = [
     {
@@ -186,22 +187,24 @@ export default function EventsPage({ searchParams }: { searchParams: { id?: stri
 
     return (
         <div className="min-h-screen bg-black relative overflow-hidden pt-28">
-            {/* Background Component */}
-            <AnimatedPostersBackground
-                opacity={0.3}
-                enableAnimations={true}
-                enableHoverEffects={true}
-            />
+            {/* Ballpit Background */}
+            <div className="absolute inset-0 z-0">
+                <Balatro
+                    isRotate={false}
+                    mouseInteraction={true}
+                    pixelFilter={700}
+                />
+            </div>
 
             {/* Grid Overlay */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)] z-10"></div>
 
             {/* Corner Decorations */}
-            <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-cyan-500/30 animate-pulse"></div>
-            <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-purple-500/30 animate-pulse"></div>
+            <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-cyan-500/30 animate-pulse z-10"></div>
+            <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-purple-500/30 animate-pulse z-10"></div>
 
             {/* Main Content */}
-            <div className="relative z-10 min-h-screen p-4 sm:p-6 lg:p-8">
+            <div className="relative z-20 min-h-screen p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     <div className={`grid grid-cols-1 ${selectedEvent ? 'lg:grid-cols-3' : 'lg:grid-cols-1'} gap-6 lg:gap-8 transition-all duration-500 ease-in-out`}>
                         {/* Event Details Panel */}
@@ -319,6 +322,7 @@ export default function EventsPage({ searchParams }: { searchParams: { id?: stri
                         <div className={`${selectedEvent ? 'lg:col-span-2' : 'lg:col-span-1'} order-2 lg:order-1 transition-all duration-500 ease-in-out`}>
                             <div className={`grid grid-cols-1 sm:grid-cols-2 ${selectedEvent ? 'xl:grid-cols-3' : 'lg:grid-cols-3'} gap-4 sm:gap-6 transition-all duration-500 ease-in-out`}>
                                 {events.map((event, index) => (
+
                                     <Card
                                         key={event.id}
                                         className={`group cursor-pointer bg-black/40 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/60 rounded-xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20 ${selectedEvent?.id === event.id ? 'ring-2 ring-cyan-400/50 shadow-cyan-500/30' : ''
@@ -409,6 +413,6 @@ export default function EventsPage({ searchParams }: { searchParams: { id?: stri
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

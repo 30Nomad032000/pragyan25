@@ -2,7 +2,6 @@
 
 import React from 'react'
 import Image from 'next/image'
-import LetterGlitch from '../LetterGlitch'
 import { useRouter } from 'next/navigation'
 import PixelBlast from '../PixelBlast'
 import Link from 'next/link'

@@ -66,7 +66,7 @@ const faqData = [
         questions: [
             {
                 question: "Do I need to bring my own equipment?",
-                answer: "It depends on the event. For coding events like Code Loom and Bug Ex, you need to bring your own laptop. For photography events, bring your camera or phone. Check the specific event rules for detailed requirements."
+                answer: "It depends on the event. For photography and reels events, bring your phone. Check the specific event rules for detailed requirements."
             },
             {
                 question: "What if I'm late to an event?",
@@ -74,7 +74,7 @@ const faqData = [
             },
             {
                 question: "Can I participate in team events individually?",
-                answer: "Some events like Trail Hack require teams (maximum 4 members), while others can be done individually. Check the event description for team requirements."
+                answer: "Some events like Trail Hack and ClipForge require teams (maximum 4 members), while others can be done individually. Check the event description for team requirements."
             },
             {
                 question: "What happens if I can't attend a registered event?",
@@ -87,7 +87,7 @@ const faqData = [
         questions: [
             {
                 question: "What are the prizes for each event?",
-                answer: "Prize amounts vary by event, ranging from ₹3,000 to ₹7,000. The total prize pool exceeds ₹50,000. Check individual event pages for specific prize amounts."
+                answer: "Prize pools vary by event, ranging from ₹3,000 to ₹7,000. The total prize pool exceeds ₹50,000. Check individual event pages for specific prize amounts."
             },
             {
                 question: "How are winners determined?",
@@ -95,7 +95,7 @@ const faqData = [
             },
             {
                 question: "When will prizes be distributed?",
-                answer: "Prizes will be distributed during the closing ceremony on October 17, 2025. Winners must be present to receive their prizes or arrange for collection within 7 days."
+                answer: "Prizes will be distributed during the closing ceremony on October 16, 2025. Winners must be present to receive their prizes or arrange for collection within 7 days."
             },
             {
                 question: "Are there certificates for participation?",
@@ -108,7 +108,7 @@ const faqData = [
         questions: [
             {
                 question: "What are the event timings?",
-                answer: "Events run from 9:30 AM to 3:00 PM on October 16, 2025. Fun Zone activities are available all day on both October 16-17, 2025. Check individual event pages for specific timings."
+                answer: "Events run from 9:30 AM to 3:00 PM on October 16, 2025. Fun Zone activities are available all day on October 16, 2025. Check individual event pages for specific timings."
             },
             {
                 question: "How long do events last?",
@@ -150,7 +150,7 @@ const faqData = [
         questions: [
             {
                 question: "Are there any registration fees?",
-                answer: "Most competitive events are free to participate. However, Fun Zone activities have entry fees: Virtual Reality Experience (₹100) and PlayStation Gaming Arena (₹50)."
+                answer: "Competitive events have registration fees ranging from ₹50 to ₹400 to participate. However, Fun Zone activities have entry fees: Virtual Reality Experience (₹100) and PlayStation Gaming Arena (₹50)."
             },
             {
                 question: "How can I pay for Fun Zone activities?",
