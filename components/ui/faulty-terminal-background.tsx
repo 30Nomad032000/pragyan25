@@ -34,11 +34,11 @@ export default function FaultyTerminalBackground({
                 noiseAmp={1}
                 chromaticAberration={0}
                 dither={0}
-                curvature={0}
+                curvature={0.1}
                 tint="#b341ed"
                 mouseReact={true}
                 mouseStrength={0.5}
-                pageLoadAnimation={false}
+                pageLoadAnimation={true}
                 brightness={1}
             />
         </div>
