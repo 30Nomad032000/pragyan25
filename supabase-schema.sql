@@ -104,16 +104,14 @@ CREATE TRIGGER update_multi_registrations_updated_at BEFORE UPDATE ON multi_even
 -- Insert default events based on your EVENT_PRICING configuration
 INSERT INTO events (name, slug, price, currency, description, is_active) VALUES
 ('Code Loom', 'code-loom', 100.00, 'INR', 'Code Loom Registration Fee', true),
-('Beat Verse', 'beat-verse', 150.00, 'INR', 'Beat Verse Registration Fee', true),
-('Click Clash', 'click-clash', 200.00, 'INR', 'Click Clash Registration Fee', true),
-('Virtux', 'virtux', 250.00, 'INR', 'Virtux Registration Fee', true),
-('Bug X', 'bug-x', 300.00, 'INR', 'Bug X Registration Fee', true),
-('Play Grid', 'play-grid', 100.00, 'INR', 'Play Grid Registration Fee', true),
-('Idea Synth', 'idea-synth', 150.00, 'INR', 'Idea Synth Registration Fee', true),
+('Beat Verse', 'beat-verse', 100.00, 'INR', 'Beat Verse Registration Fee', true),
+('Click Clash', 'click-clash', 50.00, 'INR', 'Click Clash Registration Fee', true),
+('Bug X', 'bug-x', 100.00, 'INR', 'Bug X Registration Fee', true),
+('Idea Synth', 'idea-synth', 100.00, 'INR', 'Idea Synth Registration Fee', true),
 ('Trail Hack', 'trail-hack', 400.00, 'INR', 'Trail Hack Registration Fee', true),
-('Clip Forge', 'clip-forge', 250.00, 'INR', 'Clip Forge Registration Fee', true),
-('Trialis', 'trialis', 300.00, 'INR', 'Trialis Registration Fee', true),
-('Goalazo', 'goalazo', 100.00, 'INR', 'Goalazo Registration Fee', true)
+('Clip Forge', 'clip-forge', 200.00, 'INR', 'Clip Forge Registration Fee', true),
+('Trialis', 'trialis', 50.00, 'INR', 'Trialis Registration Fee', true),
+('Golazo', 'goalazo', 100.00, 'INR', 'Goalazo Registration Fee', true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Create a view for registration details with user and event information

@@ -147,7 +147,7 @@ const funzoneEvents = [
         name: 'VirtuX: Virtual Reality Experience',
         image: '/4.png',
         description: 'Dive into immersive new worlds with cutting-edge Virtual Reality headsets! Experience heart-pounding games, incredible simulations, and truly interactive adventures. A mind-blowing experience for everyone.',
-        date: 'October 17, 2025',
+        date: 'October 16, 2025',
         time: 'All Day',
         location: 'MCA S1',
         participants: 'Unlimited',
