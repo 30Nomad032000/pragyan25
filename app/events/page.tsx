@@ -3,7 +3,7 @@
 import Balatro from "@/components/Balatro"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Clock, MapPin, Star, Timer } from "lucide-react"
+import { Calendar, Clock, MapPin, Star, Timer, Users } from "lucide-react"
 import Link from "next/link"
 import { useRef, useState } from "react"
 
@@ -110,7 +110,7 @@ const events = [
         participants: '30',
         category: 'Spontaneous Dance',
         duration: '2 hrs',
-        prize: '₹4,000'
+        prize: '₹3,000'
     },
     {
         id: 'golazo',
@@ -319,6 +319,23 @@ export default function EventsPage({ searchParams }: { searchParams: { id?: stri
 
                         {/* Events Grid */}
                         <div className={`${selectedEvent ? 'lg:col-span-2' : 'lg:col-span-1'} order-2 lg:order-1 transition-all duration-500 ease-in-out`}>
+                            {/* Multiple Events Registration Button */}
+                            <div className="mb-8 flex justify-center">
+                                <Link href="/register">
+                                    <Button className="group relative bg-gradient-to-r from-slate-600/80 via-slate-500/80 to-slate-600/80 hover:from-slate-500/90 hover:via-slate-400/90 hover:to-slate-500/90 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-xl shadow-slate-500/30 hover:shadow-2xl hover:shadow-slate-400/40 border border-slate-400/40 backdrop-blur-xl overflow-hidden">
+                                        <span className="relative z-10 flex items-center justify-center space-x-3">
+                                            <Users className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                                            <span className="text-lg">Register for Multiple Events</span>
+                                            <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+                                        </span>
+                                        {/* Elegant shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+                                        {/* Soft glow effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-slate-400/20 via-slate-300/20 to-slate-400/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    </Button>
+                                </Link>
+                            </div>
+
                             <div className={`grid grid-cols-1 sm:grid-cols-2 ${selectedEvent ? 'xl:grid-cols-3' : 'lg:grid-cols-3'} gap-4 sm:gap-6 transition-all duration-500 ease-in-out`}>
                                 {events.map((event, index) => (
 

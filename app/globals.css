@@ -1,6 +1,88 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Custom Toast Styles */
+.toaster-custom [data-sonner-toast] {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid rgba(6, 182, 212, 0.4) !important;
+  color: rgb(165, 243, 252) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.2) !important;
+  border-radius: 12px !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="success"] {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 25px 50px -12px rgba(34, 197, 94, 0.2) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="error"] {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.2) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="info"] {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.2) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="warning"] {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.2) !important;
+}
+
+.toaster-custom [data-sonner-toast] [data-title] {
+  color: rgb(165, 243, 252) !important;
+  font-weight: 600 !important;
+}
+
+.toaster-custom [data-sonner-toast] [data-description] {
+  color: rgba(165, 243, 252, 0.8) !important;
+}
+
+.toaster-custom [data-sonner-toast] [data-icon] {
+  color: rgb(6, 182, 212) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="success"] [data-icon] {
+  color: rgb(34, 197, 94) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="error"] [data-icon] {
+  color: rgb(239, 68, 68) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="info"] [data-icon] {
+  color: rgb(59, 130, 246) !important;
+}
+
+.toaster-custom [data-sonner-toast][data-type="warning"] [data-icon] {
+  color: rgb(245, 158, 11) !important;
+}
+
+.toaster-custom [data-sonner-toast] [data-button] {
+  background: linear-gradient(
+    135deg,
+    rgb(6, 182, 212),
+    rgb(147, 51, 234)
+  ) !important;
+  color: rgb(0, 0, 0) !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+.toaster-custom [data-sonner-toast] [data-cancel] {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: rgb(165, 243, 252) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  border-radius: 8px !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -25,7 +25,7 @@ export function LandingPostersSection({
     subtitle = "Discover all our exciting events"
 }: LandingPostersSectionProps) {
     const posters = Array.from({ length: 10 }, (_, i) => i + 1)
-    const eventNames = ['Code-Loom', 'Beat-Verse', 'Click-Clash', 'Virtux', 'Bug-Ex', 'Golazo', 'Idea-Synth', 'Trail-Hack', 'Clip-Forge', 'Trialis']
+    const eventNames = ['Code-Loom', 'Beat-Verse', 'Click-Clash', 'Virtux', 'Bug-X', 'Golazo', 'Idea-Synth', 'Trail-Hack', 'Clip-Forge', 'Trialis']
     const router = useRouter()
     return (
         <section className={`relative py-24 px-6 bg-black overflow-hidden ${className}`}>
@@ -73,6 +73,7 @@ export function LandingPostersSection({
                                 filter: 'drop-shadow(0 0 20px rgba(6,182,212,0.2))'
                             }}
                             onClick={() => {
+                                console.log(eventNames[posterNumber - 1].toLowerCase())
                                 router.push(`/events?id=${eventNames[posterNumber - 1].toLowerCase()}`)
                             }}
                         >

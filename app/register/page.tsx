@@ -1,21 +1,20 @@
 "use client"
 
-/// <reference path="../../../types/cashfree.d.ts" />
+/// <reference path="../../types/cashfree.d.ts" />
 import { load } from "@cashfreepayments/cashfree-js"
-import { CreditCard, Loader2, Plus, X, Users, Calendar, Clock, MapPin, Star, Timer, Code, Bug, Camera, Palette, Video, Gamepad2, Music, Search, Zap } from "lucide-react"
-import { notFound } from "next/navigation"
-import React, { useEffect, useState, use } from "react"
+import { CreditCard, Loader2, CheckCircle, XCircle } from "lucide-react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import FaultyTerminalBackground from "../../../components/ui/custom-background"
-import { Input } from "../../../components/ui/input"
-import { Label } from "../../../components/ui/label"
-import { CreateOrderRequest, CreateOrderResponse, EVENT_PRICING, PaymentFormData } from "../../../lib/types/payment"
-import { registerUser, createRegistration, getEventBySlug, getUserByEmail } from "../../../lib/supabase"
+import { Button } from "../../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
+import FaultyTerminalBackground from "../../components/ui/custom-background"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { CreateOrderRequest, CreateOrderResponse, EVENT_PRICING } from "../../lib/types/payment"
+import { registerUser, createMultiEventRegistration, getUserByEmail } from "../../lib/supabase"
 
 // Type definitions for Cashfree SDK
 interface CashfreeInstance {
@@ -32,6 +31,7 @@ interface CashfreeCheckoutResult {
         paymentMessage: string;
     };
 }
+
 
 const events = [
     {
@@ -59,19 +59,6 @@ const events = [
         category: 'Code Debugging',
         duration: '100 mins (1 hr 40 min)',
         prize: '₹4,000'
-    },
-    {
-        id: 'trail-hack',
-        name: 'Trail Hack',
-        image: '/8.png',
-        description: 'A mind-bending race against time! Decode clues, solve puzzles, and navigate the terrain to uncover the hidden treasure before your competitors.',
-        date: 'October 16, 2025',
-        time: '10:00 AM - 3:00 PM',
-        location: 'S3 classroom, Elective Classroom',
-        participants: '40',
-        category: 'Treasure Hunt',
-        duration: '5 hrs',
-        prize: '₹7,000'
     },
     {
         id: 'click-clash',
@@ -152,112 +139,51 @@ const events = [
         prize: '₹3,000'
     }
 ]
-
-// Zod schema for form validation
-const registrationSchema = z.object({
+// Zod schema for multi-event form validation
+const multiEventRegistrationSchema = z.object({
     firstName: z.string().min(1, "First name is required").min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(1, "Last name is required").min(2, "Last name must be at least 2 characters"),
     email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
     phone: z.string().min(10, "Phone number must be at least 10 digits").regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number"),
     organization: z.string().min(1, "College/Organization is required"),
-    position: z.string().optional(),
-    experience: z.string().optional(),
-    interests: z.string().optional(),
-    additionalInfo: z.string().optional(),
-    event: z.string().min(1, "Event selection is required"),
-    teammates: z.array(z.object({
-        name: z.string().min(1, "Teammate name is required").min(2, "Teammate name must be at least 2 characters"),
-        email: z.string().min(1, "Teammate email is required").email("Please enter a valid email address"),
-        phone: z.string().min(10, "Teammate phone number must be at least 10 digits").regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number"),
-    })).optional(),
+    selectedEvents: z.array(z.string()).min(1, "Please select at least one event").max(3, "You can select maximum 3 events"),
 })
 
-type RegistrationFormData = z.infer<typeof registrationSchema>
+type MultiEventRegistrationFormData = z.infer<typeof multiEventRegistrationSchema>
 
-export default function Page({ params }: { params: Promise<{ formType: string }> }) {
-    const resolvedParams = use(params)
-
+export default function Page() {
     const [cashfree, setCashfree] = useState<CashfreeInstance | null>(null)
     const [sdkLoading, setSdkLoading] = useState(true)
     const [sdkError, setSdkError] = useState<string | null>(null)
     const [formError, setFormError] = useState<string | null>(null)
     const [isSubmittingForm, setIsSubmittingForm] = useState(false)
-    const [teammates, setTeammates] = useState<Array<{ name: string, email: string, phone: string }>>([])
+    const [selectedEvents, setSelectedEvents] = useState<string[]>([])
+
     // React Hook Form setup
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
         setValue,
-    } = useForm<RegistrationFormData>({
-        resolver: zodResolver(registrationSchema),
+        watch,
+    } = useForm<MultiEventRegistrationFormData>({
+        resolver: zodResolver(multiEventRegistrationSchema),
         defaultValues: {
             firstName: "",
             lastName: "",
             email: "",
             phone: "",
             organization: "",
-            position: "",
-            experience: "",
-            interests: "",
-            additionalInfo: "",
-            event: resolvedParams.formType,
-            teammates: [],
+            selectedEvents: [],
         },
     })
 
-    const eventNames = events.map(event => event.id)
-    const imageUrl = `/${eventNames.indexOf(resolvedParams.formType) + 1}.png`
+    // Calculate total amount
+    const totalAmount = selectedEvents.reduce((total, eventName) => {
+        return total + (EVENT_PRICING[eventName]?.amount || 0)
+    }, 0)
 
-    // Function to get icon based on event category
-    const getCategoryIcon = (category: string) => {
-        const categoryLower = category.toLowerCase()
-        if (categoryLower.includes('web') || categoryLower.includes('design')) return Palette
-        if (categoryLower.includes('debug') || categoryLower.includes('code')) return Bug
-        if (categoryLower.includes('photography') || categoryLower.includes('photo')) return Camera
-        if (categoryLower.includes('prompt') || categoryLower.includes('ai')) return Zap
-        if (categoryLower.includes('video') || categoryLower.includes('reel')) return Video
-        if (categoryLower.includes('game') || categoryLower.includes('mini')) return Gamepad2
-        if (categoryLower.includes('dance') || categoryLower.includes('music')) return Music
-        if (categoryLower.includes('treasure') || categoryLower.includes('hunt')) return Search
-        return Code // Default icon
-    }
-
-    useEffect(() => {
-        if (eventNames.includes(resolvedParams.formType)) {
-            setValue("event", resolvedParams.formType)
-        } else {
-            notFound()
-        }
-    }, [resolvedParams.formType, setValue])
-
-    // Teammate management functions
-    const addTeammate = () => {
-        if (teammates.length < 3) { // Maximum 3 teammates (4 total including team leader)
-            const newTeammate = { name: "", email: "", phone: "" }
-            const updatedTeammates = [...teammates, newTeammate]
-            setTeammates(updatedTeammates)
-            setValue("teammates", updatedTeammates)
-        }
-    }
-
-    const removeTeammate = (index: number) => {
-        const updatedTeammates = teammates.filter((_, i) => i !== index)
-        setTeammates(updatedTeammates)
-        setValue("teammates", updatedTeammates)
-    }
-
-    const updateTeammate = (index: number, field: 'name' | 'email' | 'phone', value: string) => {
-        const updatedTeammates = teammates.map((teammate, i) =>
-            i === index ? { ...teammate, [field]: value } : teammate
-        )
-        setTeammates(updatedTeammates)
-        setValue("teammates", updatedTeammates)
-    }
-
-
-
-    // Initialize Cashfree SDK using official method
+    // Initialize Cashfree SDK
     useEffect(() => {
         const initializeSDK = async () => {
             try {
@@ -269,7 +195,6 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                 }) as CashfreeInstance
                 setCashfree(cashfreeInstance)
                 console.log('Cashfree SDK initialized successfully')
-
             } catch (error) {
                 console.error('Error loading Cashfree SDK:', error)
                 const errorMessage = 'Failed to initialize payment system. Please refresh the page.'
@@ -283,9 +208,8 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
         initializeSDK()
     }, [])
 
-    const createOrder = async (data: RegistrationFormData): Promise<CreateOrderResponse> => {
+    const createOrder = async (data: MultiEventRegistrationFormData): Promise<CreateOrderResponse> => {
         const orderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        const eventPricing = EVENT_PRICING[resolvedParams.formType]
 
         try {
             // Get or create user in Supabase
@@ -297,44 +221,31 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                     last_name: data.lastName,
                     phone: data.phone,
                     organization: data.organization,
-                    position: data.position,
-                    experience: data.experience,
-                    interests: data.interests,
-                    additional_info: data.additionalInfo,
                 })
             }
 
-            // Get event details from Supabase
-            const event = await getEventBySlug(resolvedParams.formType)
-
-            // Create registration in Supabase
-            await createRegistration({
+            // Create multi-event registration in Supabase
+            await createMultiEventRegistration({
                 user_id: user.id,
-                event_id: event.id,
                 order_id: orderId,
-                payment_amount: eventPricing.amount,
-                payment_currency: eventPricing.currency,
-                teammates: data.teammates || null,
+                payment_amount: totalAmount,
+                payment_currency: 'INR',
+                selected_events: selectedEvents,
             })
 
-            console.log('Registration saved to Supabase successfully')
+            console.log('Multi-event registration saved to Supabase successfully')
         } catch (error) {
-            console.error('Error saving registration to Supabase:', error)
+            console.error('Error saving multi-event registration to Supabase:', error)
             // Continue with payment even if Supabase save fails
         }
 
         const orderData: CreateOrderRequest = {
             orderId,
-            orderAmount: eventPricing.amount.toString(),
+            orderAmount: totalAmount.toString(),
             customerName: `${data.firstName} ${data.lastName}`,
             customerEmail: data.email,
             customerPhone: data.phone,
-            eventName: resolvedParams.formType,
-        }
-
-        // Add teammate information for trail-hack event
-        if (resolvedParams.formType === 'trail-hack' && data.teammates && data.teammates.length > 0) {
-            orderData.teammates = data.teammates
+            eventName: data.selectedEvents.join(', '), // Multiple events as comma-separated string
         }
 
         const response = await fetch('/api/create-order', {
@@ -348,8 +259,16 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
         return await response.json()
     }
 
+    const handleEventToggle = (eventName: string) => {
+        const newSelectedEvents = selectedEvents.includes(eventName)
+            ? selectedEvents.filter(event => event !== eventName)
+            : [...selectedEvents, eventName].slice(0, 3) // Limit to 3 events
 
-    const handlePayment = async (data: RegistrationFormData) => {
+        setSelectedEvents(newSelectedEvents)
+        setValue("selectedEvents", newSelectedEvents)
+    }
+
+    const handlePayment = async (data: MultiEventRegistrationFormData) => {
         setIsSubmittingForm(true)
         setFormError(null)
 
@@ -357,6 +276,11 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
             // Check if Cashfree SDK is loaded
             if (!cashfree) {
                 throw new Error('Payment gateway not loaded. Please refresh the page.')
+            }
+
+            // Validate that at least one event is selected
+            if (selectedEvents.length === 0) {
+                throw new Error('Please select at least one event')
             }
 
             // Create order
@@ -367,7 +291,6 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
             }
 
             console.log('Order created successfully:', orderResponse)
-
 
             // Initialize Cashfree checkout with proper callback handling
             const checkoutOptions = {
@@ -381,20 +304,17 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                 console.log('Cashfree checkout result:', result)
 
                 if (result.error) {
-                    // User closed popup or payment error
                     console.log("User has closed the popup or there is some payment error, Check for Payment Status")
                     console.log(result.error)
                     toast.error('Payment was cancelled or failed. Please try again.')
                 }
 
                 if (result.redirect) {
-                    // Payment redirection couldn't be opened in same window
                     console.log("Payment will be redirected")
                     toast.info('Payment will be redirected to complete the transaction.')
                 }
 
                 if (result.paymentDetails) {
-                    // Payment completed irrespective of transaction status
                     console.log("Payment has been completed, Check for Payment Status")
                     console.log(result.paymentDetails.paymentMessage)
                     toast.success('Payment completed!', {
@@ -433,103 +353,94 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
             <div className="relative flex items-center justify-center p-2 sm:p-4 py-8 sm:py-12 z-10 min-h-screen">
                 <div className="w-full max-w-6xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-                        {/* Left Side - Event Poster Glass Card with Overlay Details */}
-                        <div className="flex items-center justify-center order-1 lg:order-1">
-                            <Card className="w-full bg-black/30 backdrop-blur-xl border border-cyan-500/40 shadow-2xl shadow-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-cyan-500/40 hover:border-cyan-400/60 hover:scale-[1.02] group">
-                                <div className="relative">
-                                    <img
-                                        src={(() => {
-                                            const currentEvent = events.find(e => e.id === resolvedParams.formType);
-                                            return currentEvent ? currentEvent.image : imageUrl;
-                                        })()}
-                                        alt="Event Poster"
-                                        className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
-
-                                    <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(6,182,212,0.03)_50%)] bg-[length:100%_4px] animate-[scan_8s_linear_infinite] pointer-events-none"></div>
-
-                                    {/* Top Section - Event Title */}
-                                    <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 text-white">
-                                        <h2 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-cyan-300 via-cyan-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-                                            {resolvedParams.formType.toUpperCase()}
-                                        </h2>
-                                        <p className="text-cyan-200/90 text-sm sm:text-lg font-light tracking-wide">Join the future of technology</p>
-                                        <div className="mt-4 flex items-center space-x-3">
-                                            <div className="relative">
-                                                <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-                                                <div className="absolute inset-0 w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
-                                            </div>
-                                            <span className="text-sm text-cyan-300/90 font-medium tracking-wider uppercase">
-                                                Registration Open
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Bottom Section - Event Details Overlay */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
-                                        {(() => {
-                                            const currentEvent = events.find(e => e.id === resolvedParams.formType);
-                                            if (!currentEvent) return <p className="text-red-400 text-sm">Event not found</p>;
-
-                                            return (
-                                                <div className="space-y-3 ">
-                                                    {/* Event Name and Category */}
-                                                    <div className="md:flex items-center gap-3 mb-3 hidden">
-                                                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center">
-                                                            {(() => {
-                                                                const IconComponent = getCategoryIcon(currentEvent.category);
-                                                                return <IconComponent className="w-6 h-6 text-cyan-400" />;
-                                                            })()}
-                                                        </div>
+                        {/* Left Side - Events Selection */}
+                        <div className="flex items-center justify-center order-1 lg:order-1 pt-2 md:pt-24">
+                            <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-black/30 backdrop-blur-xl border border-cyan-500/40 shadow-2xl shadow-cyan-500/30 rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-cyan-500/40 hover:border-cyan-400/60 hover:scale-[1.02] group">
+                                <CardHeader className="space-y-2 sm:space-y-3 pb-4 sm:pb-6">
+                                    <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full"></div>
+                                    <CardTitle className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-cyan-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(6,182,212,0.5)] text-center">
+                                        Select Events
+                                    </CardTitle>
+                                    <CardDescription className="text-cyan-300/80 text-center text-sm sm:text-base">
+                                        Choose up to 3 events to register
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="p-4 sm:p-6">
+                                    <div className="grid 2grid-cols-1 md:grid-cols-2 gap-3">
+                                        {events.map((event) => (
+                                            <div
+                                                key={event.id}
+                                                onClick={() => handleEventToggle(event.id)}
+                                                className={`p-3 rounded-lg border cursor-pointer transition-all duration-300 ${selectedEvents.includes(event.id)
+                                                    ? 'bg-cyan-500/20 border-cyan-400/60 shadow-lg shadow-cyan-500/20'
+                                                    : 'bg-black/40 border-cyan-500/30 hover:border-cyan-400/50 hover:bg-black/50'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center space-x-3">
+                                                        <img
+                                                            src={event.image}
+                                                            alt={event.name}
+                                                            className="w-12 h-12 rounded-lg object-cover"
+                                                        />
                                                         <div>
-                                                            <h3 className="text-cyan-200 font-semibold text-lg">{currentEvent.name}</h3>
-                                                            <p className="text-cyan-300/80 text-sm">{currentEvent.category}</p>
+                                                            <h3 className="text-cyan-100 font-semibold">
+                                                                {event.name}
+                                                            </h3>
+                                                            <p className="text-cyan-300/70 text-sm">
+                                                                ₹{EVENT_PRICING[event.id]?.amount}
+                                                            </p>
                                                         </div>
                                                     </div>
-
-                                                    {/* Event Description */}
-                                                    <p className="text-cyan-300/90 text-sm leading-relaxed mb-3">
-                                                        {currentEvent.description}
-                                                    </p>
-
-                                                    {/* Event Details Grid */}
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="w-4 h-4 text-cyan-400" />
-                                                            <span className="text-cyan-300/80">Date:</span>
-                                                            <span className="text-cyan-200 font-medium">{currentEvent.date}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Clock className="w-4 h-4 text-cyan-400" />
-                                                            <span className="text-cyan-300/80">Time:</span>
-                                                            <span className="text-cyan-200 font-medium">{currentEvent.time}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <MapPin className="w-4 h-4 text-cyan-400" />
-                                                            <span className="text-cyan-300/80">Location:</span>
-                                                            <span className="text-cyan-200 font-medium">{currentEvent.location}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Timer className="w-4 h-4 text-cyan-400" />
-                                                            <span className="text-cyan-300/80">Duration:</span>
-                                                            <span className="text-cyan-200 font-medium">{currentEvent.duration}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 sm:col-span-2">
-                                                            <Star className="w-4 h-4 text-yellow-400" />
-                                                            <span className="text-cyan-300/80">Prize:</span>
-                                                            <span className="text-yellow-300 font-medium">{currentEvent.prize}</span>
-                                                        </div>
+                                                    <div className="flex items-center">
+                                                        {selectedEvents.includes(event.id) ? (
+                                                            <CheckCircle className="w-5 h-5 text-cyan-400" />
+                                                        ) : (
+                                                            <div className="w-5 h-5 border-2 border-cyan-500/50 rounded-full"></div>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            );
-                                        })()}
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
+
+                                    {/* Selection Summary */}
+                                    {selectedEvents.length > 0 && (
+                                        <div className="mt-4 p-3 bg-black/40 rounded-lg border border-cyan-500/30">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-cyan-300 font-medium text-sm">
+                                                    Selected Events ({selectedEvents.length}/3)
+                                                </span>
+                                                <CreditCard className="w-4 h-4 text-cyan-400" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                {selectedEvents.map(eventId => {
+                                                    const event = events.find(e => e.id === eventId);
+                                                    return (
+                                                        <div key={eventId} className="flex justify-between text-xs">
+                                                            <span className="text-cyan-200">
+                                                                {event ? event.name : eventId.replace('-', ' ')}
+                                                            </span>
+                                                            <span className="text-cyan-400">
+                                                                ₹{EVENT_PRICING[eventId]?.amount}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="border-t border-cyan-500/30 mt-2 pt-2">
+                                                <div className="flex justify-between">
+                                                    <span className="text-cyan-300 font-semibold">Total Amount</span>
+                                                    <span className="text-cyan-400 font-bold">₹{totalAmount}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
                             </Card>
                         </div>
 
-                        {/* Right Side - Registration Form Glass Card */}
+                        {/* Right Side - Registration Form */}
                         <div className="flex items-center justify-center order-2 lg:order-2 pt-2 md:pt-24">
                             <div className="relative w-full max-w-sm sm:max-w-md">
                                 <Card className={`w-full bg-black/30 backdrop-blur-xl border border-cyan-500/40 shadow-2xl shadow-cyan-500/30 rounded-2xl transition-all duration-300 hover:shadow-cyan-500/40 `}>
@@ -539,7 +450,7 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                             Registration
                                         </CardTitle>
                                         <CardDescription className="text-cyan-300/80 text-center text-sm sm:text-base capitalize">
-                                            Complete your registration for {resolvedParams.formType}
+                                            Complete your registration for selected events
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-4 sm:p-6">
@@ -556,7 +467,7 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                                         placeholder="Enter your first name"
                                                         className="bg-black/40 border-cyan-500/50 text-cyan-100 placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 hover:border-cyan-400/70 hover:bg-black/50"
                                                     />
-                                                    <div className=" flex items-center">
+                                                    <div className="flex items-center">
                                                         {errors.firstName && (
                                                             <p className="text-red-400 text-xs animate-in slide-in-from-top-1 duration-200">
                                                                 {errors.firstName.message}
@@ -647,106 +558,33 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                                 </div>
                                             </div>
 
-                                            {/* Teammate Fields for Trail Hack */}
-                                            {resolvedParams.formType === 'trail-hack' && (
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center space-x-2">
-                                                            <Users className="w-5 h-5 text-cyan-400" />
-                                                            <Label className="text-cyan-300 font-medium text-sm tracking-wide">
-                                                                Team Members (Optional)
-                                                            </Label>
-                                                        </div>
-                                                        <Button
-                                                            type="button"
-                                                            onClick={addTeammate}
-                                                            disabled={teammates.length >= 3}
-                                                            className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/50 hover:border-cyan-400/70 px-3 py-1 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            <Plus className="w-4 h-4 mr-1" />
-                                                            Add Member
-                                                        </Button>
+                                            {/* Event Selection Error */}
+                                            <div className="flex items-center">
+                                                {errors.selectedEvents && (
+                                                    <p className="text-red-400 text-xs animate-in slide-in-from-top-1 duration-200">
+                                                        {errors.selectedEvents.message}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Payment Information */}
+                                            {selectedEvents.length > 0 && (
+                                                <div className="bg-black/40 rounded-lg p-4 border border-cyan-500/30">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-cyan-300 font-medium text-sm">Total Registration Fee</span>
+                                                        <CreditCard className="w-4 h-4 text-cyan-400" />
                                                     </div>
-
-                                                    {teammates.length > 0 && (
-                                                        <div className="text-xs text-cyan-300/70 mb-2">
-                                                            Maximum 3 teammates allowed (4 total including you)
-                                                        </div>
-                                                    )}
-
-                                                    {teammates.map((teammate, index) => (
-                                                        <div key={index} className="bg-black/20 border border-cyan-500/30 rounded-lg p-4 space-y-3">
-                                                            <div className="flex items-center justify-between">
-                                                                <h4 className="text-cyan-300 font-medium text-sm">
-                                                                    Team Member {index + 1}
-                                                                </h4>
-                                                                <Button
-                                                                    type="button"
-                                                                    onClick={() => removeTeammate(index)}
-                                                                    className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/50 hover:border-red-400/70 p-1 rounded-lg transition-all duration-300"
-                                                                >
-                                                                    <X className="w-4 h-4" />
-                                                                </Button>
-                                                            </div>
-
-                                                            <div className="space-y-2">
-                                                                <div className="space-y-1">
-                                                                    <Label className="text-cyan-300 font-medium text-xs tracking-wide">
-                                                                        Full Name
-                                                                    </Label>
-                                                                    <Input
-                                                                        value={teammate.name}
-                                                                        onChange={(e) => updateTeammate(index, 'name', e.target.value)}
-                                                                        placeholder="Enter teammate's full name"
-                                                                        className="bg-black/40 border-cyan-500/50 text-cyan-100 placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 hover:border-cyan-400/70 hover:bg-black/50"
-                                                                    />
-                                                                </div>
-
-                                                                <div className="space-y-1">
-                                                                    <Label className="text-cyan-300 font-medium text-xs tracking-wide">
-                                                                        Email Address
-                                                                    </Label>
-                                                                    <Input
-                                                                        type="email"
-                                                                        value={teammate.email}
-                                                                        onChange={(e) => updateTeammate(index, 'email', e.target.value)}
-                                                                        placeholder="Enter teammate's email"
-                                                                        className="bg-black/40 border-cyan-500/50 text-cyan-100 placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 hover:border-cyan-400/70 hover:bg-black/50"
-                                                                    />
-                                                                </div>
-
-                                                                <div className="space-y-1">
-                                                                    <Label className="text-cyan-300 font-medium text-xs tracking-wide">
-                                                                        Phone Number
-                                                                    </Label>
-                                                                    <Input
-                                                                        type="tel"
-                                                                        value={teammate.phone}
-                                                                        onChange={(e) => updateTeammate(index, 'phone', e.target.value)}
-                                                                        placeholder="Enter teammate's phone number"
-                                                                        className="bg-black/40 border-cyan-500/50 text-cyan-100 placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 hover:border-cyan-400/70 hover:bg-black/50"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-cyan-200 text-sm">
+                                                            {selectedEvents.length} event{selectedEvents.length > 1 ? 's' : ''} selected
+                                                        </span>
+                                                        <span className="text-cyan-400 font-bold">₹{totalAmount}</span>
+                                                    </div>
                                                 </div>
                                             )}
 
-                                            {/* Payment Information */}
-                                            <div className="bg-black/40 rounded-lg p-4 border border-cyan-500/30">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-cyan-300 font-medium text-sm">Registration Fee</span>
-                                                    <CreditCard className="w-4 h-4 text-cyan-400" />
-                                                </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-cyan-200 text-sm">{EVENT_PRICING[resolvedParams.formType]?.description}</span>
-                                                    <span className="text-cyan-400 font-bold">₹{EVENT_PRICING[resolvedParams.formType]?.amount}</span>
-                                                </div>
-                                            </div>
-
                                             {/* SDK Error Display */}
-                                            <div className=" overflow-hidden">
+                                            <div className="overflow-hidden">
                                                 {sdkError && (
                                                     <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-3 animate-in slide-in-from-top-2 duration-300">
                                                         <div className="flex items-center space-x-2">
@@ -826,7 +664,7 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                             {/* Submit Button */}
                                             <Button
                                                 type="submit"
-                                                disabled={isSubmitting || isSubmittingForm || sdkLoading || !!sdkError}
+                                                disabled={isSubmitting || isSubmittingForm || sdkLoading || !!sdkError || selectedEvents.length === 0}
                                                 className="w-full bg-gradient-to-r from-cyan-500 via-cyan-400 to-purple-500 hover:from-cyan-400 hover:via-cyan-300 hover:to-purple-400 text-black font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-cyan-500/40 hover:shadow-xl hover:shadow-cyan-400/50 border border-cyan-400/60 relative overflow-hidden group mt-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                                             >
                                                 {(isSubmitting || isSubmittingForm) ? (
@@ -845,9 +683,13 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                                     <>
                                                         <span className="relative z-10">Payment System Unavailable</span>
                                                     </>
+                                                ) : selectedEvents.length === 0 ? (
+                                                    <>
+                                                        <span className="relative z-10">Select Events First</span>
+                                                    </>
                                                 ) : (
                                                     <>
-                                                        <span className="relative z-10">Complete Registration & Pay</span>
+                                                        <span className="relative z-10">Complete Registration & Pay ₹{totalAmount}</span>
                                                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                                                     </>
                                                 )}
