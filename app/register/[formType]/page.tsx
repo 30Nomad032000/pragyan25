@@ -57,7 +57,7 @@ export default function Page({ params }: { params: { formType: string } }) {
     // Live countdown timer effect
     useEffect(() => {
         // Set current time to 2:00 PM on September 10, 2025
-        const currentTime = new Date('2025-10-09T14:00:00').getTime()
+        const currentTime = new Date('2025-10-10T00:00:00').getTime()
         // Set registration opening time (12 hours from current time)
         const registrationOpenTime = currentTime + 12 * 60 * 60 * 1000
 
