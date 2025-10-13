@@ -263,7 +263,8 @@ const eventRules: Record<string, {
             "Do not tamper with clues or materials",
             "No cheating or interfering with other teams",
             "Stay in accessible areas only",
-            "Tie-breaker determines winner if needed"
+            "Tie-breaker determines winner if needed",
+            "Participants registering for the Treasure Hunt event will not be eligible to participate in other events, due to time constraints and overlapping schedules."
         ]
     },
     'click-clash': {
