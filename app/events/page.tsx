@@ -209,8 +209,6 @@ const eventRules: Record<string, {
             "Single elimination knockout format",
             "Normal knockout: 6 minutes per match",
             "Use own network connection",
-            "Reporting time: 11:30 PM",
-            "Date: 16-10-25"
         ],
         coordinators: [
             { name: "Vishnu C.S", phone: "7736191701" },
