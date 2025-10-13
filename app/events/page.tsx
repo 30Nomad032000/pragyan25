@@ -3,7 +3,7 @@
 import Balatro from "@/components/Balatro"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Clock, MapPin, Star, Timer, Users } from "lucide-react"
+import { Calendar, Clock, MapPin, Star, Timer, Users, Shield, AlertTriangle, CheckCircle, Info } from "lucide-react"
 import Link from "next/link"
 import { useRef, useState } from "react"
 
@@ -158,6 +158,159 @@ const funzoneEvents = [
     }
 ]
 
+// Event-specific rules mapping
+const eventRules: Record<string, {
+    rules: string[]
+    coordinators?: { name: string; phone: string }[]
+    judging?: string[]
+    evaluation?: string[]
+}> = {
+    'idea-synth': {
+        rules: [
+            "Individual participation only - no teams allowed",
+            "Design tools will be provided on the day of competition",
+            "Each round has specific time limits",
+            "All smart devices are prohibited during competition",
+            "Must follow event coordinators' instructions at all times",
+            "Misconduct or rule violation results in disqualification",
+            "Two rounds with new design challenges each round"
+        ],
+        coordinators: [
+            { name: "Jeffy John T", phone: "8129495761" },
+            { name: "Athul", phone: "9037184607" }
+        ]
+    },
+    'clip-forge': {
+        rules: [
+            "Maximum 4 members per team",
+            "Video length strictly 30 seconds",
+            "Final video must be submitted within 3 hours",
+            "Theme announced at reporting time",
+            "MP4 or MOV format, preferably vertical (9:16)",
+            "Original content only - no plagiarism",
+            "Copyright-free music/voiceovers only",
+            "Late submissions not accepted under any circumstances"
+        ],
+        judging: [
+            "Content Creativity & Storytelling - 40%",
+            "Relevance to Theme - 25%",
+            "Technical Quality - 20%",
+            "Originality & Engagement - 15%"
+        ]
+    },
+    'golazo': {
+        rules: [
+            "Team strength: 3100 maximum",
+            "No double booster allowed",
+            "Single elimination knockout format",
+            "Normal knockout: 6 minutes per match",
+            "Use own network connection",
+            "Reporting time: 11:30 PM",
+            "Date: 16-10-25"
+        ],
+        coordinators: [
+            { name: "Vishnu C.S", phone: "7736191701" },
+            { name: "Gokul P", phone: "6238285908" }
+        ]
+    },
+    'bug-x': {
+        rules: [
+            "Individual participation only",
+            "60 computers available (1:1 ratio)",
+            "Report 10 minutes before start time",
+            "Only lab-provided computer allowed",
+            "No external resources, mobile phones, or AI tools",
+            "90-minute debugging rounds",
+            "10-minute break between rounds",
+            "Late submissions not accepted",
+            "System tampering results in disqualification"
+        ],
+        evaluation: [
+            "Accuracy of bug fixes",
+            "Code readability and structure",
+            "Time taken to resolve issues"
+        ]
+    },
+    'code-loom': {
+        rules: [
+            "Individual participation only",
+            "30 computers available",
+            "Report 10 minutes before start time",
+            "Only lab-provided computer and platform allowed",
+            "Multiple rounds with increasing difficulty",
+            "System tampering results in disqualification",
+            "Maintain discipline and respect equipment"
+        ]
+    },
+    'beat-verse': {
+        rules: [
+            "Individual participation only",
+            "Songs provided by organizers - no changes allowed",
+            "Maximum 3 minutes per performance",
+            "Continuous dancing required - no pauses",
+            "Properties provided on spot - use creatively",
+            "Any genre: Bollywood, Western, Folk, Hip-Hop",
+            "Evaluation based on creativity and property use"
+        ]
+    },
+    'trail-hack': {
+        rules: [
+            "Teams of exactly 4 members",
+            "3 rounds: Activities, Logical & Thinking, Final Hunt",
+            "Top 12 teams qualify from Round 1",
+            "4 teams reach final hunt",
+            "Time tracked - fastest completion wins",
+            "Do not tamper with clues or materials",
+            "No cheating or interfering with other teams",
+            "Stay in accessible areas only",
+            "Tie-breaker determines winner if needed"
+        ]
+    },
+    'click-clash': {
+        rules: [
+            "Theme announced on the spot",
+            "Only mobile photography - no DSLR or drone",
+            "Basic edits only: crop, brightness, contrast",
+            "No filters or AI editing",
+            "Submit one photo in .JPG/.JPEG format (max 10MB)",
+            "Limited time to click and submit",
+            "Photo must be original and taken during event",
+            "Judging: creativity, theme relevance, composition"
+        ]
+    },
+    'trialis': {
+        rules: [
+            "Individual participation only",
+            "Multiple rounds of mini-games",
+            "Quick reflexes and strategic thinking required",
+            "Scores tracked across all rounds",
+            "No external assistance allowed",
+            "Follow all game-specific instructions",
+            "Respect other participants and equipment"
+        ]
+    },
+    'play-grid': {
+        rules: [
+            "Entry fee: ₹50 per session",
+            "Sessions are 30 minutes each",
+            "First come, first served basis",
+            "Respectful gaming behavior required",
+            "No food or drinks near gaming equipment",
+            "Follow staff instructions at all times"
+        ]
+    },
+    'virtux': {
+        rules: [
+            "Entry fee: ₹100 per session",
+            "Sessions are 15 minutes each",
+            "Safety briefing mandatory before use",
+            "No food or drinks near VR equipment",
+            "Follow all safety instructions",
+            "Report any equipment issues immediately"
+        ]
+    }
+}
+
 export default function EventsPage({ searchParams }: { searchParams: { id?: string } }) {
     const [selectedEvent, setSelectedEvent] = useState(() => {
         if (searchParams.id) {
@@ -286,6 +439,68 @@ export default function EventsPage({ searchParams }: { searchParams: { id?: stri
                                                     {selectedEvent.description}
                                                 </p>
                                             </div>
+
+                                            {/* Rules Section */}
+                                            {eventRules[selectedEvent.id] && (
+                                                <div className="mt-6 p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg">
+                                                    <h4 className="text-white font-semibold mb-3 flex items-center">
+                                                        <Shield className="w-5 h-5 mr-2 text-cyan-400" />
+                                                        Event Rules & Guidelines
+                                                    </h4>
+                                                    <div className="space-y-3">
+                                                        <ul className="space-y-2">
+                                                            {eventRules[selectedEvent.id].rules.map((rule, idx) => (
+                                                                <li key={idx} className="flex items-start text-white/80 text-sm">
+                                                                    <CheckCircle className="w-4 h-4 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                                                                    <span>{rule}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+
+                                                        {/* Judging Criteria */}
+                                                        {eventRules[selectedEvent.id].judging && (
+                                                            <div className="mt-4 pt-3 border-t border-white/10">
+                                                                <h5 className="text-white font-medium mb-2 text-sm">Judging Criteria:</h5>
+                                                                <ul className="space-y-1">
+                                                                    {eventRules[selectedEvent.id].judging!.map((criteria, idx) => (
+                                                                        <li key={idx} className="text-white/70 text-xs">
+                                                                            • {criteria}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Evaluation Criteria */}
+                                                        {eventRules[selectedEvent.id].evaluation && (
+                                                            <div className="mt-4 pt-3 border-t border-white/10">
+                                                                <h5 className="text-white font-medium mb-2 text-sm">Evaluation Criteria:</h5>
+                                                                <ul className="space-y-1">
+                                                                    {eventRules[selectedEvent.id].evaluation!.map((criteria, idx) => (
+                                                                        <li key={idx} className="text-white/70 text-xs">
+                                                                            • {criteria}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Event Coordinators */}
+                                                        {eventRules[selectedEvent.id].coordinators && (
+                                                            <div className="mt-4 pt-3 border-t border-white/10">
+                                                                <h5 className="text-white font-medium mb-2 text-sm">Event Coordinators:</h5>
+                                                                <div className="space-y-1">
+                                                                    {eventRules[selectedEvent.id].coordinators!.map((coordinator, idx) => (
+                                                                        <div key={idx} className="text-white/70 text-xs">
+                                                                            <strong>{coordinator.name}</strong>: {coordinator.phone}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             <div className="mt-6">
                                                 {selectedEvent.category === 'Fun Zone' ? (

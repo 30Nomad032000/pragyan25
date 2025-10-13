@@ -6,6 +6,7 @@ import MobileOptimizedBackground from "../components/ui/mobile-optimized-backgro
 import PowerGlitchImage from "../components/ui/powerglitch-image";
 import PowerGlitchButton from "../components/ui/powerglitch-button";
 import { useEffect, useState } from "react";
+import Balatro from "@/components/Balatro";
 
 export default function Home() {
 
@@ -18,12 +19,20 @@ export default function Home() {
         }`} suppressHydrationWarning>
 
         {/* Conditional background - simplified for mobile */}
-        <div className="absolute inset-0 z-0" suppressHydrationWarning>
+        <div className="absolute inset-0 z-0 hidden lg:block" suppressHydrationWarning>
 
           <FaultyTerminalBackground
             className="w-full h-full"
           />
 
+        </div>
+
+        <div className="absolute inset-0 z-0 block lg:hidden" suppressHydrationWarning>
+          <Balatro
+            isRotate={false}
+            mouseInteraction={true}
+            pixelFilter={700}
+          />
         </div>
 
         <div className="relative w-full flex flex-col items-center justify-center px-4 sm:px-12 space-y-8" suppressHydrationWarning>

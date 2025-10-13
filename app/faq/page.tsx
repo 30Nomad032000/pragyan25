@@ -6,38 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge"
 import { HelpCircle, Calendar, Users, Trophy, Clock, MapPin, CreditCard, Shield, Mail, Phone } from "lucide-react"
 
-const faqCategories = [
-    {
-        icon: Calendar,
-        title: "Event Registration",
-        color: "text-blue-400"
-    },
-    {
-        icon: Users,
-        title: "Participation",
-        color: "text-green-400"
-    },
-    {
-        icon: Trophy,
-        title: "Prizes & Awards",
-        color: "text-yellow-400"
-    },
-    {
-        icon: Clock,
-        title: "Schedule & Timing",
-        color: "text-purple-400"
-    },
-    {
-        icon: MapPin,
-        title: "Venue & Location",
-        color: "text-red-400"
-    },
-    {
-        icon: CreditCard,
-        title: "Payments & Fees",
-        color: "text-orange-400"
-    }
-]
+
 
 const faqData = [
     {
