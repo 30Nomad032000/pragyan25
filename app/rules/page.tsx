@@ -111,7 +111,7 @@ const eventSpecificRules = [
         ]
     },
     {
-        event: "Code Crucible: Debugging Challenge",
+        event: "Bug-X: Debugging Challenge",
         fee: "₹100",
         duration: "90 minutes + 10 minute break",
         venue: "MCA Lab, PG Block",
