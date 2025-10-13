@@ -2,7 +2,7 @@
 
 /// <reference path="../../../types/cashfree.d.ts" />
 import { load } from "@cashfreepayments/cashfree-js"
-import { CreditCard, Loader2, Plus, X, Users, Calendar, Clock, MapPin, Star, Timer, Code, Bug, Camera, Palette, Video, Gamepad2, Music, Search, Zap } from "lucide-react"
+import { CreditCard, Loader2, Plus, X, Users, Calendar, Clock, MapPin, Star, Timer, Code, Bug, Camera, Palette, Video, Gamepad2, Music, Search, Zap, Shield, CheckCircle, Info } from "lucide-react"
 import { notFound } from "next/navigation"
 import React, { useEffect, useState, use } from "react"
 import { useForm } from "react-hook-form"
@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import FaultyTerminalBackground from "../../../components/ui/custom-background"
 import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "../../../components/ui/sheet"
 import { CreateOrderRequest, CreateOrderResponse, EVENT_PRICING, PaymentFormData } from "../../../lib/types/payment"
 import { registerUser, createRegistration, getEventBySlug, getUserByEmail } from "../../../lib/supabase"
 
@@ -153,6 +154,163 @@ const events = [
     }
 ]
 
+// Event-specific rules mapping
+const eventRules: Record<string, {
+    rules: string[]
+    coordinators?: { name: string; phone: string }[]
+    judging?: string[]
+    evaluation?: string[]
+}> = {
+    'idea-synth': {
+        rules: [
+            "Individual participation only - no teams allowed",
+            "Design tools will be provided on the day of competition",
+            "Each round has specific time limits",
+            "All smart devices are prohibited during competition",
+            "Must follow event coordinators' instructions at all times",
+            "Misconduct or rule violation results in disqualification",
+            "Two rounds with new design challenges each round"
+        ],
+        coordinators: [
+            { name: "Jeffy John T", phone: "8129495761" },
+            { name: "Athul", phone: "9037184607" }
+        ]
+    },
+    'clip-forge': {
+        rules: [
+            "Maximum 4 members per team",
+            "Video length strictly 30 seconds",
+            "Final video must be submitted within 3 hours",
+            "Theme announced at reporting time",
+            "MP4 or MOV format, preferably vertical (9:16)",
+            "Original content only - no plagiarism",
+            "Copyright-free music/voiceovers only",
+            "Late submissions not accepted under any circumstances"
+        ],
+        judging: [
+            "Content Creativity & Storytelling - 40%",
+            "Relevance to Theme - 25%",
+            "Technical Quality - 20%",
+            "Originality & Engagement - 15%"
+        ],
+        coordinators: [
+            { name: "Arunima A.P", phone: "8891446372" },
+            { name: "Abin Sebastian", phone: "9567108534" }
+        ]
+    },
+    'golazo': {
+        rules: [
+            "Team strength: 3100 maximum",
+            "No double booster allowed",
+            "Single elimination knockout format",
+            "Normal knockout: 6 minutes per match",
+            "Use own network connection",
+        ],
+        coordinators: [
+            { name: "Vishnu C.S", phone: "7736191701" },
+            { name: "Gokul P", phone: "6238285908" }
+        ]
+    },
+    'bug-x': {
+        rules: [
+            "Individual participation only",
+            "60 computers available (1:1 ratio)",
+            "Report 10 minutes before start time",
+            "Only lab-provided computer allowed",
+            "No external resources, mobile phones, or AI tools",
+            "90-minute debugging rounds",
+            "10-minute break between rounds",
+            "Late submissions not accepted",
+            "System tampering results in disqualification"
+        ],
+        evaluation: [
+            "Accuracy of bug fixes",
+            "Code readability and structure",
+            "Time taken to resolve issues"
+        ], coordinators: [
+            { name: "Jomon Vincent", phone: "9074849868" },
+            { name: "Joyal P", phone: "9946117762" }
+        ]
+
+    },
+    'code-loom': {
+        rules: [
+            "Individual participation only",
+            "30 computers available",
+            "Report 10 minutes before start time",
+            "Only lab-provided computer and platform allowed",
+            "Multiple rounds with increasing difficulty",
+            "System tampering results in disqualification",
+            "Maintain discipline and respect equipment"
+        ]
+        , coordinators: [
+            { name: "Aswathy Babu", phone: "8606014492" },
+            { name: "K Govindan", phone: "7025895728" }
+        ]
+    },
+    'beat-verse': {
+        rules: [
+            "Individual participation only",
+            "Songs provided by organizers - no changes allowed",
+            "Maximum 3 minutes per performance",
+            "Continuous dancing required - no pauses",
+            "Properties provided on spot - use creatively",
+            "Any genre: Bollywood, Western, Folk, Hip-Hop",
+            "Evaluation based on creativity and property use"
+        ],
+        coordinators: [
+            { name: "Abhinav", phone: "9526184769" },
+            { name: "Gladia", phone: "9778535808" }
+        ]
+    },
+    'trail-hack': {
+        rules: [
+            "Teams of exactly 4 members",
+            "3 rounds: Activities, Logical & Thinking, Final Hunt",
+            "Top 12 teams qualify from Round 1",
+            "4 teams reach final hunt",
+            "Time tracked - fastest completion wins",
+            "Do not tamper with clues or materials",
+            "No cheating or interfering with other teams",
+            "Stay in accessible areas only",
+            "Tie-breaker determines winner if needed",
+            "Participants registering for the Treasure Hunt event will not be eligible to participate in other events, due to time constraints and overlapping schedules."
+        ], coordinators: [
+            { name: "Bavin C Jeni", phone: "9656139011" },
+            { name: "Shiva", phone: "8547460695" }
+        ]
+    },
+    'click-clash': {
+        rules: [
+            "Theme announced on the spot",
+            "Only mobile photography - no DSLR or drone",
+            "Basic edits only: crop, brightness, contrast",
+            "No filters or AI editing",
+            "Submit one photo in .JPG/.JPEG format (max 10MB)",
+            "Limited time to click and submit",
+            "Photo must be original and taken during event",
+            "Judging: creativity, theme relevance, composition"
+        ], coordinators: [
+            { name: "Karthik PM", phone: "9567053549" },
+            { name: "Abhilash", phone: "9633461686" }
+        ]
+    },
+    'trialis': {
+        rules: [
+            "Individual participation only",
+            "Multiple rounds of mini-games",
+            "Quick reflexes and strategic thinking required",
+            "Scores tracked across all rounds",
+            "No external assistance allowed",
+            "Follow all game-specific instructions",
+            "Respect other participants and equipment"
+        ], coordinators: [
+            { name: "Adwaith", phone: "9074548615" },
+            { name: "Harikrishnan", phone: "7510533172" }
+        ]
+    }
+}
+
 // Zod schema for form validation
 const registrationSchema = z.object({
     firstName: z.string().min(1, "First name is required").min(2, "First name must be at least 2 characters"),
@@ -183,6 +341,8 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
     const [formError, setFormError] = useState<string | null>(null)
     const [isSubmittingForm, setIsSubmittingForm] = useState(false)
     const [teammates, setTeammates] = useState<Array<{ name: string, email: string, phone: string }>>([])
+    const [isRulesModalOpen, setIsRulesModalOpen] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
     // React Hook Form setup
     const {
         register,
@@ -283,6 +443,106 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
         initializeSDK()
     }, [])
 
+    // Mobile detection
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768)
+        }
+
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
+    // Rules content component
+    const RulesContent = () => {
+        const rules = eventRules[resolvedParams.formType];
+        if (!rules) return null;
+
+        return (
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Rules Section */}
+                    <div className="space-y-4">
+                        <h4 className="text-white font-semibold text-lg flex items-center">
+                            <Shield className="w-5 h-5 mr-2 text-cyan-400" />
+                            Event Rules & Guidelines
+                        </h4>
+                        <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-4">
+                            <div className="space-y-2">
+                                <ul className="space-y-2">
+                                    {rules.rules.map((rule, idx) => (
+                                        <li key={idx} className="flex items-start text-white/80 text-sm">
+                                            <CheckCircle className="w-4 h-4 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                                            <span>{rule}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {/* Judging Criteria */}
+                                {rules.judging && (
+                                    <div className="mt-4 pt-3 border-t border-white/10">
+                                        <h6 className="text-white font-medium mb-2 text-sm">Judging Criteria:</h6>
+                                        <ul className="space-y-1">
+                                            {rules.judging.map((criteria, idx) => (
+                                                <li key={idx} className="text-white/70 text-xs">
+                                                    • {criteria}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* Evaluation Criteria */}
+                                {rules.evaluation && (
+                                    <div className="mt-4 pt-3 border-t border-white/10">
+                                        <h6 className="text-white font-medium mb-2 text-sm">Evaluation Criteria:</h6>
+                                        <ul className="space-y-1">
+                                            {rules.evaluation.map((criteria, idx) => (
+                                                <li key={idx} className="text-white/70 text-xs">
+                                                    • {criteria}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Contact Details Section */}
+                    <div className="space-y-4">
+                        <h4 className="text-white font-semibold text-lg flex items-center">
+                            <Info className="w-5 h-5 mr-2 text-purple-400" />
+                            Event Coordinators
+                        </h4>
+                        {rules.coordinators && (
+                            <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg p-4">
+                                <div className="space-y-2">
+                                    {rules.coordinators.map((coordinator, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+                                            <div>
+                                                <p className="text-white font-medium text-sm">{coordinator.name}</p>
+                                                <p className="text-cyan-300/80 text-xs">Event Coordinator</p>
+                                            </div>
+                                            <a
+                                                href={`tel:${coordinator.phone}`}
+                                                className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors duration-200"
+                                            >
+                                                {coordinator.phone}
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const createOrder = async (data: RegistrationFormData): Promise<CreateOrderResponse> => {
         const orderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         const eventPricing = EVENT_PRICING[resolvedParams.formType]
@@ -363,7 +623,7 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
             const orderResponse = await createOrder(data)
 
             if (!orderResponse.success) {
-                throw new Error(orderResponse.error || 'Failed to create order')
+                throw new Error(orderResponse.details[0]?.message || 'Failed to create order')
             }
 
             console.log('Order created successfully:', orderResponse)
@@ -556,7 +816,7 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                                         placeholder="Enter your first name"
                                                         className="bg-black/40 border-cyan-500/50 text-cyan-100 placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 hover:border-cyan-400/70 hover:bg-black/50"
                                                     />
-                                                    <div className=" flex items-center">
+                                                    <div className="flex items-center">
                                                         {errors.firstName && (
                                                             <p className="text-red-400 text-xs animate-in slide-in-from-top-1 duration-200">
                                                                 {errors.firstName.message}
@@ -743,6 +1003,21 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                                                     <span className="text-cyan-200 text-sm">{EVENT_PRICING[resolvedParams.formType]?.description}</span>
                                                     <span className="text-cyan-400 font-bold">₹{EVENT_PRICING[resolvedParams.formType]?.amount}</span>
                                                 </div>
+
+                                                {/* Rules Button */}
+                                                <div className="mt-3 pt-3 border-t border-cyan-500/30">
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => setIsRulesModalOpen(true)}
+                                                        className="w-full bg-gradient-to-r from-purple-500/80 via-purple-400/80 to-cyan-500/80 hover:from-purple-400/90 hover:via-purple-300/90 hover:to-cyan-400/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-400/30 border border-purple-400/40 relative overflow-hidden group"
+                                                    >
+                                                        <span className="relative z-10 flex items-center justify-center space-x-2">
+                                                            <Shield className="w-4 h-4" />
+                                                            <span>View Rules & Contact Details</span>
+                                                        </span>
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                                                    </Button>
+                                                </div>
                                             </div>
 
                                             {/* SDK Error Display */}
@@ -860,6 +1135,64 @@ export default function Page({ params }: { params: Promise<{ formType: string }>
                     </div>
                 </div>
             </div>
+
+            {/* Rules Modal/Sheet */}
+            {isMobile ? (
+                // Mobile: Sheet from bottom
+                <Sheet open={isRulesModalOpen} onOpenChange={setIsRulesModalOpen}>
+                    <SheetContent side="bottom" className="h-[85vh] bg-black/40 backdrop-blur-xl border-cyan-500/40 rounded-t-2xl p-0">
+                        <SheetHeader className="space-y-2 px-6 pt-6 pb-4">
+                            <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full"></div>
+                            <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-300 via-cyan-400 to-purple-400 bg-clip-text text-transparent text-center">
+                                Event Rules & Contact Details
+                            </SheetTitle>
+                            <SheetDescription className="text-cyan-300/80 text-center">
+                                Important information for {resolvedParams.formType}
+                            </SheetDescription>
+                        </SheetHeader>
+                        <div className="overflow-y-auto flex-1 px-6 pb-6">
+                            <RulesContent />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            ) : (
+                // Desktop: Dialog modal
+                isRulesModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            onClick={() => setIsRulesModalOpen(false)}
+                        ></div>
+
+                        {/* Modal Content */}
+                        <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                            <Card className="bg-black/40 backdrop-blur-xl border border-cyan-500/40 shadow-2xl shadow-cyan-500/30 rounded-2xl overflow-hidden">
+                                <CardHeader className="space-y-2 sm:space-y-3 pb-4 sm:pb-6 relative">
+                                    <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full"></div>
+                                    <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-300 via-cyan-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(6,182,212,0.5)] text-center">
+                                        Event Rules & Contact Details
+                                    </CardTitle>
+                                    <CardDescription className="text-cyan-300/80 text-center text-sm sm:text-base">
+                                        Important information for {resolvedParams.formType}
+                                    </CardDescription>
+
+                                    {/* Close Button */}
+                                    <Button
+                                        onClick={() => setIsRulesModalOpen(false)}
+                                        className="absolute top-4 right-4 w-8 h-8 p-0 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-full transition-all duration-200"
+                                    >
+                                        <X className="w-4 h-4 text-red-400" />
+                                    </Button>
+                                </CardHeader>
+                                <CardContent className="p-4 sm:p-6 max-h-[60vh] overflow-y-auto">
+                                    <RulesContent />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                )
+            )}
         </div>
     )
 }

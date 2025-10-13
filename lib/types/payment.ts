@@ -36,6 +36,10 @@ export interface CreateOrderRequest {
 }
 
 export interface CreateOrderResponse {
+  details: Array<{
+    field: string;
+    message: string;
+  }>;
   success: boolean;
   orderId: string;
   paymentSessionId: string;
