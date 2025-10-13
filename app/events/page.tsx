@@ -27,11 +27,11 @@ const events = [
         image: '/5.png',
         description: 'Sharpen your analytical skills and become a debugging detective. Race against the clock to find, fix, and optimize broken code, restoring order to the digital world.',
         date: 'October 16, 2025',
-        time: '9:30 AM - 11:30 AM',
-        location: 'MCA Lab',
+        time: '1:00 PM - 3:00 PM',
+        location: 'AI Lab 1',
         participants: '30',
         category: 'Code Debugging',
-        duration: '100 mins (1 hr 40 min)',
+        duration: '120 mins (1 hr 20 min)',
         prize: '₹4,000'
     },
     {
@@ -41,7 +41,7 @@ const events = [
         description: 'A mind-bending race against time! Decode clues, solve puzzles, and navigate the terrain to uncover the hidden treasure before your competitors.',
         date: 'October 16, 2025',
         time: '10:00 AM - 3:00 PM',
-        location: 'S3 classroom, Elective Classroom',
+        location: 'S3 classroom, Elective Classroom/ MCA Lab',
         participants: '40',
         category: 'Treasure Hunt',
         duration: '5 hrs',
@@ -67,7 +67,7 @@ const events = [
         description: 'The future belongs to those who can communicate with AI. Craft the perfect prompts to generate stunning visuals or complex text, demonstrating your mastery of AI tools and creative direction.',
         date: 'October 16, 2025',
         time: '11:00 AM - 1:00 PM',
-        location: 'AI Lab 2',
+        location: 'MCA Lab',
         participants: '20',
         category: 'Prompt Designing',
         duration: '2 hrs',
@@ -92,7 +92,7 @@ const events = [
         image: '/10.png',
         description: 'Quick thinking and even quicker reflexes are key. Navigate a series of fast-paced, challenging mini-games, aiming for high scores and bragging rights in a multi-round competition.',
         date: 'October 16, 2025',
-        time: '12:30 PM - 2:30 PM',
+        time: '1:00 PM - 3:00 PM',
         location: 'MCA Lab',
         participants: '30',
         category: 'Mini Level Games',
@@ -119,7 +119,7 @@ const events = [
         description: 'Lace up your digital boots and take to the pitch! This is a competitive tournament for eFootball Konami.Prove your skills, strategize your way to victory, and compete against the players for prizes',
         date: 'October 16, 2025',
         time: '12:30 PM - 3:00 PM',
-        location: 'AI Lab 1',
+        location: 'AI Lab 2',
         participants: '20',
         category: 'E-Game',
         duration: '2.5 hrs',
@@ -147,7 +147,7 @@ const funzoneEvents = [
         name: 'VirtuX: Virtual Reality Experience',
         image: '/4.png',
         description: 'Dive into immersive new worlds with cutting-edge Virtual Reality headsets! Experience heart-pounding games, incredible simulations, and truly interactive adventures. A mind-blowing experience for everyone.',
-        date: 'October 17, 2025',
+        date: 'October 16, 2025',
         time: 'All Day',
         location: 'MCA S1',
         participants: 'Unlimited',
@@ -196,6 +196,10 @@ const eventRules: Record<string, {
             "Relevance to Theme - 25%",
             "Technical Quality - 20%",
             "Originality & Engagement - 15%"
+        ],
+        coordinators: [
+            { name: "Arunima A.P", phone: "8891446372" },
+            { name: "Abin Sebastian", phone: "9567108534" }
         ]
     },
     'golazo': {
@@ -229,7 +233,11 @@ const eventRules: Record<string, {
             "Accuracy of bug fixes",
             "Code readability and structure",
             "Time taken to resolve issues"
+        ], coordinators: [
+            { name: "Jomon Vincent", phone: "9074849868" },
+            { name: "Joyal P", phone: "9946117762" }
         ]
+
     },
     'code-loom': {
         rules: [
@@ -241,6 +249,10 @@ const eventRules: Record<string, {
             "System tampering results in disqualification",
             "Maintain discipline and respect equipment"
         ]
+        , coordinators: [
+            { name: "Aswathy Babu", phone: "8606014492" },
+            { name: "K Govindan", phone: "7025895728" }
+        ]
     },
     'beat-verse': {
         rules: [
@@ -251,6 +263,10 @@ const eventRules: Record<string, {
             "Properties provided on spot - use creatively",
             "Any genre: Bollywood, Western, Folk, Hip-Hop",
             "Evaluation based on creativity and property use"
+        ],
+        coordinators: [
+            { name: "Abhinav", phone: "9526184769" },
+            { name: "Gladia", phone: "9778535808" }
         ]
     },
     'trail-hack': {
@@ -265,6 +281,9 @@ const eventRules: Record<string, {
             "Stay in accessible areas only",
             "Tie-breaker determines winner if needed",
             "Participants registering for the Treasure Hunt event will not be eligible to participate in other events, due to time constraints and overlapping schedules."
+        ], coordinators: [
+            { name: "Bavin C Jeni", phone: "9656139011" },
+            { name: "Shiva", phone: "8547460695" }
         ]
     },
     'click-clash': {
@@ -277,6 +296,9 @@ const eventRules: Record<string, {
             "Limited time to click and submit",
             "Photo must be original and taken during event",
             "Judging: creativity, theme relevance, composition"
+        ], coordinators: [
+            { name: "Karthik PM", phone: "9567053549" },
+            { name: "Abhilash", phone: "9633461686" }
         ]
     },
     'trialis': {
@@ -288,6 +310,9 @@ const eventRules: Record<string, {
             "No external assistance allowed",
             "Follow all game-specific instructions",
             "Respect other participants and equipment"
+        ], coordinators: [
+            { name: "Adwaith", phone: "9074548615" },
+            { name: "Harikrishnan", phone: "7510533172" }
         ]
     },
     'play-grid': {
