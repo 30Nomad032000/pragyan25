@@ -19,7 +19,7 @@ const contactInfo = [
     {
         icon: Phone,
         title: "Call Us",
-        details: ["+91-XXXX-XXXX", "+91-XXXX-XXXX"],
+        details: ["+91-6238111288", "+91-9747643485"],
         description: "Mon-Fri from 9am to 6pm"
     },
     {
