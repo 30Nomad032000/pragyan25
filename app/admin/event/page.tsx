@@ -41,7 +41,7 @@ interface Registration {
             name: string
         }>
         payment_amount: number
-        payment_status: string
+        payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | 'spot'
         created_at: string
     }
 }

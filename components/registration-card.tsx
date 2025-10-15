@@ -11,7 +11,7 @@ interface RegistrationCardProps {
     registration: {
         id: string
         order_id: string
-        payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
+        payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | 'spot'
         payment_amount: number
         participation_confirmed: boolean
         created_at: string
@@ -73,6 +73,10 @@ export function RegistrationCard({ registration, onUpdate }: RegistrationCardPro
                 return <Clock className="w-4 h-4 text-yellow-400" />
             case 'failed':
                 return <XCircle className="w-4 h-4 text-red-400" />
+            case 'refunded':
+                return <RefreshCw className="w-4 h-4 text-gray-400" />
+            case 'spot':
+                return <Users className="w-4 h-4 text-orange-400" />
             default:
                 return <Clock className="w-4 h-4 text-gray-400" />
         }
@@ -83,11 +87,15 @@ export function RegistrationCard({ registration, onUpdate }: RegistrationCardPro
             paid: 'default',
             pending: 'secondary',
             failed: 'destructive',
-            refunded: 'outline'
+            refunded: 'outline',
+            spot: 'outline'
         } as const
 
         return (
-            <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>
+            <Badge
+                variant={variants[status as keyof typeof variants] || 'secondary'}
+                className={status === 'spot' ? 'border-orange-500/50 text-orange-300 bg-orange-500/10' : ''}
+            >
                 {status.toUpperCase()}
             </Badge>
         )

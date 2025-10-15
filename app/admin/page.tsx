@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
@@ -34,6 +34,17 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [filter, setFilter] = useState<'all' | 'paid' | 'pending' | 'failed'>('all')
+    const [searchQuery, setSearchQuery] = useState('')
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery)
+        }, 300)
+
+        return () => clearTimeout(timer)
+    }, [searchQuery])
 
     useEffect(() => {
         fetchRegistrations()
@@ -114,6 +125,18 @@ export default function AdminDashboard() {
         }
     }
 
+    // Client-side filtering for search
+    const filteredRegistrations = useMemo(() => {
+        if (!debouncedSearchQuery.trim()) {
+            return registrations
+        }
+
+        return registrations.filter(reg => {
+            const fullName = `${reg.users.first_name} ${reg.users.last_name}`.toLowerCase()
+            return fullName.includes(debouncedSearchQuery.toLowerCase())
+        })
+    }, [registrations, debouncedSearchQuery])
+
     const getPaymentStatusIcon = (status: string) => {
         switch (status) {
             case 'paid':
@@ -164,6 +187,24 @@ export default function AdminDashboard() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="p-6">
+                            {/* Search Field */}
+                            <div className="mb-6">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search by name..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full px-4 py-2 bg-black/30 border border-cyan-500/50 rounded-lg text-cyan-100 placeholder-cyan-300/60 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Filter Buttons */}
                             <div className="flex flex-wrap gap-2 mb-6">
                                 {(['all', 'paid', 'pending', 'failed'] as const).map((filterType) => (
@@ -206,13 +247,13 @@ export default function AdminDashboard() {
                             {/* Registrations List */}
                             {!loading && (
                                 <div className="space-y-4">
-                                    {registrations.length === 0 ? (
+                                    {filteredRegistrations.length === 0 ? (
                                         <div className="text-center py-8">
                                             <Users className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
                                             <p className="text-cyan-300">No registrations found</p>
                                         </div>
                                     ) : (
-                                        registrations.map((registration) => (
+                                        filteredRegistrations.map((registration) => (
                                             <Card key={registration.id} className="bg-black/20 border border-cyan-500/30">
                                                 <CardContent className="p-4">
                                                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

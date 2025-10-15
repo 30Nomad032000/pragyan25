@@ -37,6 +37,7 @@ export const createRegistration = async (registrationData: {
   order_id: string;
   payment_amount: number;
   payment_currency: string;
+  payment_status?: string;
   payment_session_id?: string;
   teammates?: any;
 }) => {
