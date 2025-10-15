@@ -28,8 +28,8 @@ const CreateOrderSchema = z.object({
     .min(1, "Customer name is required")
     .max(100, "Customer name must be less than 100 characters")
     .regex(
-      /^[a-zA-Z\s]+$/,
-      "Customer name can only contain letters and spaces"
+      /^[a-zA-Z\s.']+$/,
+      "Customer name can only contain letters, spaces, periods, and apostrophes"
     ),
   customerEmail: z
     .string()

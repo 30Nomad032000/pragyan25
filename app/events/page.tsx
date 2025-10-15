@@ -205,7 +205,7 @@ const eventRules: Record<string, {
     'golazo': {
         rules: [
             "Team strength: 3100 maximum",
-            "No double booster allowed",
+            "Manager double booster not allowed",
             "Single elimination knockout format",
             "Normal knockout: 6 minutes per match",
             "Use own network connection",
