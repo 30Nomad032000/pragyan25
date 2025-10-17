@@ -146,6 +146,71 @@ export default function Home() {
           enableHoverEffects={true}
         />
       </div>
+
+      {/* Special Thanks Section */}
+      <div className="relative py-20 px-4 sm:px-12 bg-gradient-to-b from-black via-gray-900 to-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-6">
+              Special Thanks
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto mb-6"></div>
+            <p className="text-gray-300 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
+              We extend our heartfelt gratitude to our sponsors who make Pragyan 2025 possible
+            </p>
+          </div>
+
+          {/* Sponsors Container */}
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16">
+            {/* MJ Tours & Travels Sponsor */}
+            <div className="group relative w-full max-w-md">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-gray-600/30 hover:border-cyan-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-400/30">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-purple-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative p-8 text-center">
+                  <div className="mb-6">
+                    <img
+                      src="/sponsor1.jpg"
+                      alt="MJ Tours & Travels"
+                      className="w-full h-56 object-contain rounded-2xl bg-white/10 p-6 group-hover:bg-white/20 transition-all duration-500"
+                    />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-100 mb-3 group-hover:text-cyan-300 transition-colors duration-300">
+                    MJ Tours & Travels
+                  </h3>
+                  <p className="text-gray-400 text-lg font-medium">
+                    Travel Partner
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Lecasa Sponsor */}
+            <div className="group relative w-full max-w-md">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-gray-600/30 hover:border-purple-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-400/30">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/5 to-pink-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative p-8 text-center">
+                  <div className="mb-6">
+                    <img
+                      src="/sponsor2.JPG"
+                      alt="Lecasa"
+                      className="w-full h-56 object-contain rounded-2xl bg-white/10 p-6 group-hover:bg-white/20 transition-all duration-500"
+                    />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-100 mb-3 group-hover:text-purple-300 transition-colors duration-300">
+                    Lecasa
+                  </h3>
+                  <p className="text-gray-400 text-lg font-medium mb-2">
+                    Premium Partner
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    +91 85906 58407
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
