@@ -52,6 +52,10 @@ export function Navbar() {
         }
     }, [isMobileMenuOpen])
 
+    if (pathname == "/file") {
+        return null
+    }
+
     return (
         <header className="w-full">
             {/* Position like reference: absolute, centered, pill with glass effect */}
