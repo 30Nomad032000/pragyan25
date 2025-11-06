@@ -11,7 +11,7 @@ import { supabase } from "../../lib/supabase"
 interface Registration {
     id: string
     order_id: string
-    payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
+    payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | 'spot'
     payment_amount: number
     participation_confirmed: boolean
     created_at: string
@@ -33,9 +33,11 @@ export default function AdminDashboard() {
     const [registrations, setRegistrations] = useState<Registration[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [filter, setFilter] = useState<'all' | 'paid' | 'pending' | 'failed'>('all')
+    const [filter, setFilter] = useState<'all' | 'paid' | 'pending' | 'failed' | 'spot'>('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(25)
 
     // Debounce search query
     useEffect(() => {
@@ -49,6 +51,11 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchRegistrations()
     }, [filter])
+
+    // Reset to first page when filter or search changes
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [filter, debouncedSearchQuery])
 
     const fetchRegistrations = async () => {
         try {
@@ -127,15 +134,36 @@ export default function AdminDashboard() {
 
     // Client-side filtering for search
     const filteredRegistrations = useMemo(() => {
-        if (!debouncedSearchQuery.trim()) {
-            return registrations
+        let filtered = registrations
+
+        if (debouncedSearchQuery.trim()) {
+            filtered = registrations.filter(reg => {
+                const fullName = `${reg.users.first_name} ${reg.users.last_name}`.toLowerCase()
+                return fullName.includes(debouncedSearchQuery.toLowerCase())
+            })
         }
 
-        return registrations.filter(reg => {
-            const fullName = `${reg.users.first_name} ${reg.users.last_name}`.toLowerCase()
-            return fullName.includes(debouncedSearchQuery.toLowerCase())
-        })
+        return filtered
     }, [registrations, debouncedSearchQuery])
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredRegistrations.length / pageSize)
+    const startIndex = (currentPage - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    const paginatedRegistrations = filteredRegistrations.slice(startIndex, endIndex)
+
+    // Pagination handlers
+    const goToPage = (page: number) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+    }
+
+    const goToPreviousPage = () => {
+        setCurrentPage(prev => Math.max(1, prev - 1))
+    }
+
+    const goToNextPage = () => {
+        setCurrentPage(prev => Math.min(totalPages, prev + 1))
+    }
 
     const getPaymentStatusIcon = (status: string) => {
         switch (status) {
@@ -145,6 +173,8 @@ export default function AdminDashboard() {
                 return <Clock className="w-4 h-4 text-yellow-400" />
             case 'failed':
                 return <XCircle className="w-4 h-4 text-red-400" />
+            case 'spot':
+                return <Users className="w-4 h-4 text-blue-400" />
             default:
                 return <Clock className="w-4 h-4 text-gray-400" />
         }
@@ -155,7 +185,8 @@ export default function AdminDashboard() {
             paid: 'default',
             pending: 'secondary',
             failed: 'destructive',
-            refunded: 'outline'
+            refunded: 'outline',
+            spot: 'secondary'
         } as const
 
         return (
@@ -207,7 +238,7 @@ export default function AdminDashboard() {
 
                             {/* Filter Buttons */}
                             <div className="flex flex-wrap gap-2 mb-6">
-                                {(['all', 'paid', 'pending', 'failed'] as const).map((filterType) => (
+                                {(['all', 'paid', 'pending', 'failed', 'spot'] as const).map((filterType) => (
                                     <Button
                                         key={filterType}
                                         onClick={() => setFilter(filterType)}
@@ -229,127 +260,9 @@ export default function AdminDashboard() {
                                 </Button>
                             </div>
 
-                            {/* Error Display */}
-                            {error && (
-                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-6">
-                                    <p className="text-red-400 text-sm">{error}</p>
-                                </div>
-                            )}
-
-                            {/* Loading State */}
-                            {loading && (
-                                <div className="text-center py-8">
-                                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                    <p className="text-cyan-300">Loading registrations...</p>
-                                </div>
-                            )}
-
-                            {/* Registrations List */}
-                            {!loading && (
-                                <div className="space-y-4">
-                                    {filteredRegistrations.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <Users className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
-                                            <p className="text-cyan-300">No registrations found</p>
-                                        </div>
-                                    ) : (
-                                        filteredRegistrations.map((registration) => (
-                                            <Card key={registration.id} className="bg-black/20 border border-cyan-500/30">
-                                                <CardContent className="p-4">
-                                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                                                        <div className="flex-1 space-y-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <h3 className="text-lg font-semibold text-cyan-100">
-                                                                    {registration.users.first_name} {registration.users.last_name}
-                                                                </h3>
-                                                                <div className="flex items-center gap-1">
-                                                                    {getPaymentStatusIcon(registration.payment_status)}
-                                                                    {getPaymentStatusBadge(registration.payment_status)}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Mail className="w-4 h-4 text-cyan-400" />
-                                                                    <span className="text-cyan-300">{registration.users.email}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Phone className="w-4 h-4 text-cyan-400" />
-                                                                    <span className="text-cyan-300">{registration.users.phone}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Users className="w-4 h-4 text-cyan-400" />
-                                                                    <span className="text-cyan-300">{registration.users.organization}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Calendar className="w-4 h-4 text-cyan-400" />
-                                                                    <span className="text-cyan-300">
-                                                                        {new Date(registration.created_at).toLocaleDateString()}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="text-sm">
-                                                                <p className="text-cyan-300">
-                                                                    <span className="font-medium">Order ID:</span> {registration.order_id}
-                                                                </p>
-                                                                <p className="text-cyan-300">
-                                                                    <span className="font-medium">Amount:</span> ₹{registration.payment_amount}
-                                                                </p>
-                                                                {registration.events && (
-                                                                    <p className="text-cyan-300">
-                                                                        <span className="font-medium">Event:</span> {registration.events.name}
-                                                                    </p>
-                                                                )}
-                                                                {registration.selected_events && (
-                                                                    <p className="text-cyan-300">
-                                                                        <span className="font-medium">Events:</span> {registration.selected_events.join(', ')}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex flex-col gap-2">
-                                                            <div className="text-center">
-                                                                <p className="text-xs text-cyan-300 mb-1">Participation</p>
-                                                                <Badge variant={registration.participation_confirmed ? 'default' : 'secondary'}>
-                                                                    {registration.participation_confirmed ? 'Confirmed' : 'Pending'}
-                                                                </Badge>
-                                                            </div>
-
-                                                            {registration.payment_status === 'paid' && (
-                                                                <div className="flex gap-2">
-                                                                    <Button
-                                                                        size="sm"
-                                                                        onClick={() => updateParticipationStatus(registration.id, true)}
-                                                                        disabled={registration.participation_confirmed}
-                                                                        className="bg-green-500 hover:bg-green-400 text-black text-xs"
-                                                                    >
-                                                                        Confirm
-                                                                    </Button>
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="outline"
-                                                                        onClick={() => updateParticipationStatus(registration.id, false)}
-                                                                        disabled={!registration.participation_confirmed}
-                                                                        className="border-red-500/50 text-red-300 hover:bg-red-500/10 text-xs"
-                                                                    >
-                                                                        Unconfirm
-                                                                    </Button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        ))
-                                    )}
-                                </div>
-                            )}
-
                             {/* Summary Stats */}
                             {!loading && registrations.length > 0 && (
-                                <div className="mt-6 pt-4 border-t border-cyan-500/30">
+                                <div className="mb-6 pb-4 border-b border-cyan-500/30">
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                         <div>
                                             <p className="text-2xl font-bold text-cyan-400">{registrations.length}</p>
@@ -368,14 +281,271 @@ export default function AdminDashboard() {
                                             <p className="text-sm text-cyan-300">Pending</p>
                                         </div>
                                         <div>
-                                            <p className="text-2xl font-bold text-green-400">
-                                                {registrations.filter(r => r.participation_confirmed).length}
+                                            <p className="text-2xl font-bold text-blue-400">
+                                                {registrations.filter(r => r.payment_status === 'spot').length}
                                             </p>
-                                            <p className="text-sm text-cyan-300">Confirmed</p>
+                                            <p className="text-sm text-cyan-300">Spot</p>
                                         </div>
+
                                     </div>
                                 </div>
                             )}
+
+                            {/* Error Display */}
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-6">
+                                    <p className="text-red-400 text-sm">{error}</p>
+                                </div>
+                            )}
+
+                            {/* Loading State */}
+                            {loading && (
+                                <div className="text-center py-8">
+                                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p className="text-cyan-300">Loading registrations...</p>
+                                </div>
+                            )}
+
+                            {/* Registrations Table */}
+                            {!loading && (
+                                <div className="overflow-x-auto">
+                                    {paginatedRegistrations.length === 0 ? (
+                                        <div className="text-center py-8">
+                                            <Users className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
+                                            <p className="text-cyan-300">No registrations found</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {/* Desktop Table */}
+                                            <div className="hidden lg:block">
+                                                <table className="w-full border-collapse">
+                                                    <thead>
+                                                        <tr className="border-b border-cyan-500/30">
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Name</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Email</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Phone</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Organization</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Payment Status</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Amount</th>
+                                                            <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Events</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {paginatedRegistrations.map((registration) => (
+                                                            <tr key={registration.id} className="border-b border-cyan-500/20 hover:bg-black/10 transition-colors">
+                                                                <td className="py-3 px-4">
+                                                                    <div className="text-cyan-100 font-medium">
+                                                                        {registration.users.first_name} {registration.users.last_name}
+                                                                    </div>
+                                                                    <div className="text-xs text-cyan-400">
+                                                                        {new Date(registration.created_at).toLocaleDateString()}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="py-3 px-4 text-cyan-300 text-sm">
+                                                                    {registration.users.email}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-cyan-300 text-sm">
+                                                                    {registration.users.phone}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-cyan-300 text-sm">
+                                                                    {registration.users.organization}
+                                                                </td>
+                                                                <td className="py-3 px-4">
+                                                                    <div className="flex items-center gap-2">
+                                                                        {getPaymentStatusIcon(registration.payment_status)}
+                                                                        {getPaymentStatusBadge(registration.payment_status)}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="py-3 px-4 text-cyan-300 text-sm">
+                                                                    ₹{registration.payment_amount}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-cyan-300 text-sm">
+                                                                    {registration.events ? (
+                                                                        <span>{registration.events.name}</span>
+                                                                    ) : registration.selected_events ? (
+                                                                        <span>{registration.selected_events.join(', ')}</span>
+                                                                    ) : (
+                                                                        <span className="text-gray-500">-</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            {/* Mobile Cards */}
+                                            <div className="lg:hidden space-y-4">
+                                                {paginatedRegistrations.map((registration) => (
+                                                    <Card key={registration.id} className="bg-black/20 border border-cyan-500/30">
+                                                        <CardContent className="p-4">
+                                                            <div className="space-y-3">
+                                                                <div className="flex items-center justify-between">
+                                                                    <h3 className="text-lg font-semibold text-cyan-100">
+                                                                        {registration.users.first_name} {registration.users.last_name}
+                                                                    </h3>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {getPaymentStatusIcon(registration.payment_status)}
+                                                                        {getPaymentStatusBadge(registration.payment_status)}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-1 gap-2 text-sm">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Mail className="w-4 h-4 text-cyan-400" />
+                                                                        <span className="text-cyan-300">{registration.users.email}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Phone className="w-4 h-4 text-cyan-400" />
+                                                                        <span className="text-cyan-300">{registration.users.phone}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Users className="w-4 h-4 text-cyan-400" />
+                                                                        <span className="text-cyan-300">{registration.users.organization}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Calendar className="w-4 h-4 text-cyan-400" />
+                                                                        <span className="text-cyan-300">
+                                                                            {new Date(registration.created_at).toLocaleDateString()}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="text-sm space-y-1">
+                                                                    <p className="text-cyan-300">
+                                                                        <span className="font-medium">Amount:</span> ₹{registration.payment_amount}
+                                                                    </p>
+                                                                    {registration.events && (
+                                                                        <p className="text-cyan-300">
+                                                                            <span className="font-medium">Event:</span> {registration.events.name}
+                                                                        </p>
+                                                                    )}
+                                                                    {registration.selected_events && (
+                                                                        <p className="text-cyan-300">
+                                                                            <span className="font-medium">Events:</span> {registration.selected_events.join(', ')}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex items-center justify-between pt-2 border-t border-cyan-500/20">
+                                                                    <Badge variant={registration.participation_confirmed ? 'default' : 'secondary'}>
+                                                                        {registration.participation_confirmed ? 'Confirmed' : 'Pending'}
+                                                                    </Badge>
+                                                                    {registration.payment_status === 'paid' && (
+                                                                        <div className="flex gap-2">
+                                                                            <Button
+                                                                                size="sm"
+                                                                                onClick={() => updateParticipationStatus(registration.id, true)}
+                                                                                disabled={registration.participation_confirmed}
+                                                                                className="bg-green-500 hover:bg-green-400 text-black text-xs"
+                                                                            >
+                                                                                Confirm
+                                                                            </Button>
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="outline"
+                                                                                onClick={() => updateParticipationStatus(registration.id, false)}
+                                                                                disabled={!registration.participation_confirmed}
+                                                                                className="border-red-500/50 text-red-300 hover:bg-red-500/10 text-xs"
+                                                                            >
+                                                                                Unconfirm
+                                                                            </Button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Pagination Controls */}
+                            {!loading && filteredRegistrations.length > 0 && (
+                                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    {/* Page Size Selector */}
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-cyan-300 text-sm">Show:</span>
+                                        <select
+                                            value={pageSize}
+                                            onChange={(e) => {
+                                                setPageSize(Number(e.target.value))
+                                                setCurrentPage(1)
+                                            }}
+                                            className="bg-black/30 border border-cyan-500/50 rounded px-2 py-1 text-cyan-100 text-sm focus:outline-none focus:border-cyan-400"
+                                        >
+                                            <option value={10}>10</option>
+                                            <option value={25}>25</option>
+                                            <option value={50}>50</option>
+                                            <option value={100}>100</option>
+                                        </select>
+                                        <span className="text-cyan-300 text-sm">per page</span>
+                                    </div>
+
+                                    {/* Pagination Info */}
+                                    <div className="text-cyan-300 text-sm">
+                                        Showing {startIndex + 1} to {Math.min(endIndex, filteredRegistrations.length)} of {filteredRegistrations.length} entries
+                                    </div>
+
+                                    {/* Pagination Buttons */}
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            onClick={goToPreviousPage}
+                                            disabled={currentPage === 1}
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-cyan-500/70 text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-white bg-black/20 disabled:opacity-50"
+                                        >
+                                            Previous
+                                        </Button>
+
+                                        {/* Page Numbers */}
+                                        <div className="flex items-center gap-1">
+                                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                let pageNum;
+                                                if (totalPages <= 5) {
+                                                    pageNum = i + 1;
+                                                } else if (currentPage <= 3) {
+                                                    pageNum = i + 1;
+                                                } else if (currentPage >= totalPages - 2) {
+                                                    pageNum = totalPages - 4 + i;
+                                                } else {
+                                                    pageNum = currentPage - 2 + i;
+                                                }
+
+                                                return (
+                                                    <Button
+                                                        key={pageNum}
+                                                        onClick={() => goToPage(pageNum)}
+                                                        variant={currentPage === pageNum ? 'default' : 'outline'}
+                                                        size="sm"
+                                                        className={`${currentPage === pageNum
+                                                            ? 'bg-cyan-500 hover:bg-cyan-400 text-black font-semibold'
+                                                            : 'border-cyan-500/70 text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-white bg-black/20'
+                                                            }`}
+                                                    >
+                                                        {pageNum}
+                                                    </Button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <Button
+                                            onClick={goToNextPage}
+                                            disabled={currentPage === totalPages}
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-cyan-500/70 text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-white bg-black/20 disabled:opacity-50"
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
                         </CardContent>
                     </Card>
                 </div>

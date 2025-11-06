@@ -12,7 +12,13 @@ export function Navbar() {
     const pathname = usePathname()
     const mobileMenuRef = useRef<HTMLDivElement>(null)
 
-    const navigationItems = [
+
+    const navigationItems = pathname.startsWith("/admin") ? [
+        { href: "/", label: "Home" },
+        { href: "/admin", label: "Dashboard" },
+        { href: "/admin/event", label: "Events" },
+        { href: "/admin/certificates", label: "Certificates" },
+    ] : [
         { href: "/", label: "Home" },
         { href: "/events", label: "Events" },
         { href: "/about", label: "About" },
